@@ -1,0 +1,2026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hostel Inventory & Procurement Management System</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --bg: #0f172a;
+      --card-bg: rgba(30, 41, 59, 0.9);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --admin-color: #ef4444;
+      --purchased-color: #10b981;
+      --chief-color: #8b5cf6;
+      --warning: #f59e0b;
+      --download-color: #3b82f6;
+      --success: #22c55e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #particleCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .app-container {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      flex: 1;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      backdrop-filter: blur(10px);
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .brand h1 {
+      font-size: 1.4rem;
+      background: linear-gradient(135deg, #60a5fa, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .badge-admin { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid var(--admin-color); }
+    .badge-purchased_person { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid var(--purchased-color); }
+    .badge-chief { background: rgba(139, 92, 246, 0.2); color: #c4b5fd; border: 1px solid var(--chief-color); }
+    .badge-success { background: rgba(34, 197, 94, 0.2); color: #86efac; border: 1px solid var(--success); }
+    .badge-warning { background: rgba(245, 158, 11, 0.2); color: #fcd34d; border: 1px solid var(--warning); }
+    .badge-danger { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid var(--admin-color); }
+
+    .login-wrapper {
+      max-width: 440px;
+      margin: 3rem auto;
+      background: var(--card-bg);
+      padding: 2.5rem;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .portal-buttons { display: flex; flex-direction: column; gap: 0.85rem; margin-top: 1rem; }
+    .portal-btn {
+      padding: 1rem; font-size: 0.95rem; font-weight: 700; border-radius: 10px;
+      cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+      border: 1px solid var(--border); background: rgba(15, 23, 42, 0.6); color: var(--text);
+      transition: all 0.3s;
+    }
+    .portal-btn:hover { transform: translateY(-2px); }
+    .btn-chief:hover { border-color: var(--chief-color); color: #c4b5fd; }
+    .btn-purchased:hover { border-color: var(--purchased-color); color: #6ee7b7; }
+    .btn-admin:hover { border-color: var(--admin-color); color: #fca5a5; }
+
+    .grid-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 1.25rem;
+      border-radius: 12px;
+      backdrop-filter: blur(8px);
+    }
+
+    .card h4 { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .card .val { font-size: 1.8rem; font-weight: 800; color: #60a5fa; }
+    .card .val.success { color: var(--success); }
+    .card .val.warning { color: var(--warning); }
+    .card .val.danger { color: var(--admin-color); }
+
+    .form-group { margin-bottom: 1rem; }
+    label { display: block; margin-bottom: 0.4rem; font-size: 0.85rem; font-weight: 600; color: #cbd5e1; }
+    input, select, textarea {
+      width: 100%; padding: 0.75rem; background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 0.95rem;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); }
+
+    .btn {
+      padding: 0.75rem 1.25rem; border: none; border-radius: 8px; font-weight: 700;
+      cursor: pointer; background: var(--primary); color: white; transition: all 0.2s;
+    }
+    .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-danger { background: var(--admin-color); }
+    .btn-secondary { background: #475569; }
+    .btn-download { background: var(--download-color); }
+    .btn-success { background: var(--purchased-color); }
+    .btn-chief-color { background: var(--chief-color); }
+    .btn-warning { background: var(--warning); }
+
+    .table-container {
+      overflow-x: auto;
+      margin-top: 1rem;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.85rem; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    th { background: rgba(15, 23, 42, 0.9); color: var(--text-muted); position: sticky; top: 0; z-index: 5; }
+
+    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .tab-btn {
+      padding: 0.6rem 1.2rem; background: transparent; border: none; color: var(--text-muted);
+      cursor: pointer; font-weight: 600; border-bottom: 2px solid transparent;
+    }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    .modal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.8); display: flex; justify-content: center; align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: #1e293b; padding: 2rem; border-radius: 12px; width: 100%; max-width: 600px;
+      border: 1px solid var(--border); max-height: 90vh; overflow-y: auto;
+    }
+    .slip-box { background: #fff; color: #000; padding: 1.5rem; border-radius: 8px; font-family: monospace; }
+
+    .hidden { display: none !important; }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .btn-sm {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.8rem;
+    }
+
+    .error-msg {
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      padding: 0.75rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      border: 1px solid var(--admin-color);
+      display: none;
+    }
+
+    .success-msg {
+      background: rgba(16, 185, 129, 0.2);
+      color: #6ee7b7;
+      padding: 0.75rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      border: 1px solid var(--purchased-color);
+      display: none;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .search-box input {
+      flex: 1;
+      min-width: 200px;
+    }
+    .search-box select {
+      min-width: 150px;
+    }
+
+    .notification-badge {
+      position: relative;
+      display: inline-block;
+    }
+    .notification-badge .badge-count {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: var(--admin-color);
+      color: white;
+      border-radius: 50%;
+      padding: 2px 6px;
+      font-size: 0.7rem;
+      font-weight: bold;
+    }
+
+    .stock-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+    .stock-indicator.green { background: var(--success); }
+    .stock-indicator.yellow { background: var(--warning); }
+    .stock-indicator.red { background: var(--admin-color); }
+
+    .quick-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .stat-item {
+      background: rgba(15, 23, 42, 0.6);
+      padding: 0.75rem;
+      border-radius: 8px;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+    .stat-item .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    .stat-item .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .forgot-link {
+      color: var(--primary);
+      cursor: pointer;
+      font-size: 0.85rem;
+      text-decoration: underline;
+    }
+    .forgot-link:hover {
+      color: #60a5fa;
+    }
+
+    @media print {
+      body * { visibility: hidden; }
+      .slip-box, .slip-box * { visibility: visible; }
+      .slip-box { position: absolute; left: 0; top: 0; width: 100%; }
+    }
+
+    @media (max-width: 768px) {
+      .app-container { padding: 0.75rem; }
+      header { flex-direction: column; align-items: stretch; }
+      .user-info { justify-content: space-between; }
+      .grid-cards { grid-template-columns: repeat(2, 1fr); }
+      .tabs { flex-direction: column; }
+      .tab-btn { text-align: left; }
+      .quick-stats { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="particleCanvas"></canvas>
+
+  <div class="app-container">
+
+    <header id="appHeader" class="hidden">
+      <div class="brand">
+        <h1>🏠 Hostel Inventory System</h1>
+      </div>
+      <div class="user-info">
+        <span id="notificationBadge" class="notification-badge" style="display:none;">
+          <span style="font-size:1.2rem;">🔔</span>
+          <span class="badge-count" id="alertCount">0</span>
+        </span>
+        <span id="userEmailTag" style="font-size: 0.85rem; color: var(--text-muted);"></span>
+        <span id="userRoleBadge" class="badge"></span>
+        <button class="btn btn-secondary btn-sm" onclick="handleLogout()">🚪 Logout</button>
+      </div>
+    </header>
+
+    <!-- LOGIN PAGE -->
+    <div id="authView">
+      <div class="login-wrapper" id="portalSelectBox">
+        <h2 style="text-align: center; margin-bottom: 0.5rem;">🏨 Hostel Management</h2>
+        <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Select portal to enter system</p>
+        
+        <div class="portal-buttons">
+          <button class="portal-btn btn-chief" onclick="selectRolePortal('chief')">
+            <span>👨‍🏫 Login as Hostel Chief</span><span>→</span>
+          </button>
+          <button class="portal-btn btn-purchased" onclick="selectRolePortal('purchased_person')">
+            <span>🛒 Login as Purchased Person</span><span>→</span>
+          </button>
+          <button class="portal-btn btn-admin" onclick="selectRolePortal('admin')">
+            <span>🔐 Login as Admin</span><span>→</span>
+          </button>
+        </div>
+
+        <div style="text-align: center; margin-top: 1.5rem; font-size: 0.85rem;">
+          New User? <a href="#" style="color: var(--primary);" onclick="showRegisterBox()">Register Here</a>
+        </div>
+      </div>
+
+      <div class="login-wrapper hidden" id="loginFormBox">
+        <button class="btn btn-secondary btn-sm" style="margin-bottom: 1rem;" onclick="showPortalSelect()">← Back</button>
+        <span id="loginBadge" class="badge" style="margin-bottom: 1rem; display: inline-block;"></span>
+        <div id="loginError" class="error-msg"></div>
+        <form id="loginForm">
+          <div class="form-group">
+            <label>📧 Email Address</label>
+            <input type="email" id="loginEmail" required placeholder="user@gmail.com">
+          </div>
+          <div class="form-group">
+            <label>🔒 Password</label>
+            <input type="password" id="loginPassword" required placeholder="••••••••">
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <span class="forgot-link" onclick="showForgotPassword()">🔑 Forgot Password?</span>
+          </div>
+          <button type="submit" class="btn" style="width: 100%;" id="loginSubmitBtn">
+            <span id="loginBtnText">Sign In</span>
+            <span id="loginSpinner" class="loading-spinner" style="display:none;"></span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Forgot Password Box -->
+      <div class="login-wrapper hidden" id="forgotPasswordBox">
+        <button class="btn btn-secondary btn-sm" style="margin-bottom: 1rem;" onclick="showPortalSelect()">← Back to Login</button>
+        <h3>🔑 Reset Password</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">
+          Enter your email address and we'll send you a link to reset your password.
+        </p>
+        <div id="forgotError" class="error-msg"></div>
+        <div id="forgotSuccess" class="success-msg"></div>
+        <form id="forgotPasswordForm">
+          <div class="form-group">
+            <label>📧 Email Address</label>
+            <input type="email" id="forgotEmail" required placeholder="user@gmail.com">
+          </div>
+          <button type="submit" class="btn" style="width: 100%;" id="forgotSubmitBtn">
+            <span id="forgotBtnText">Send Reset Link</span>
+            <span id="forgotSpinner" class="loading-spinner" style="display:none;"></span>
+          </button>
+        </form>
+        <div style="text-align: center; margin-top: 1rem; font-size: 0.85rem;">
+          Remember your password? <span class="forgot-link" onclick="showPortalSelect()">Login Here</span>
+        </div>
+      </div>
+
+      <div class="login-wrapper hidden" id="registerBox">
+        <button class="btn btn-secondary btn-sm" style="margin-bottom: 1rem;" onclick="showPortalSelect()">← Back</button>
+        <h3>📝 Register User Account</h3>
+        <div id="registerError" class="error-msg"></div>
+        <div id="registerSuccess" class="success-msg"></div>
+        <form id="registerForm" style="margin-top: 1rem;">
+          <div class="form-group">
+            <label>👤 Full Name</label>
+            <input type="text" id="regName" required placeholder="John Doe">
+          </div>
+          <div class="form-group">
+            <label>📧 Email Address</label>
+            <input type="email" id="regEmail" required placeholder="user@email.com">
+          </div>
+          <div class="form-group">
+            <label>🔒 Password (min 6 characters)</label>
+            <input type="password" id="regPassword" required placeholder="••••••••" minlength="6">
+          </div>
+          <div class="form-group">
+            <label>🎯 Assigned Role</label>
+            <select id="regRole" required>
+              <option value="chief">Hostel Chief (Warden)</option>
+              <option value="purchased_person">Purchased Person (Procurement)</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <button type="submit" class="btn" style="width: 100%;" id="registerBtn">
+            <span id="registerBtnText">Create User</span>
+            <span id="registerSpinner" class="loading-spinner" style="display:none;"></span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ADMIN DASHBOARD -->
+    <div id="adminDashboardView" class="hidden">
+      <div class="grid-cards">
+        <div class="card"><h4>📦 Total Products</h4><div class="val" id="admTotalProducts">0</div></div>
+        <div class="card"><h4>📥 Total Purchased Qty</h4><div class="val" id="admTotalPurchased">0</div></div>
+        <div class="card"><h4>📤 Total Used Qty</h4><div class="val" id="admTotalUsed">0</div></div>
+        <div class="card"><h4>📊 Remaining Stock</h4><div class="val" id="admRemainingStock">0</div></div>
+        <div class="card"><h4>💰 Total Purchase Amount</h4><div class="val" id="admTotalSpend">₹0</div></div>
+        <div class="card"><h4>⚠️ Low / Out of Stock</h4><div class="val" id="admAlertStock" style="color: var(--warning);">0</div></div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="now" onclick="switchAdminTab('now')">📊 WHAT'S HAPPENING NOW</button>
+        <button class="tab-btn" data-tab="products" onclick="switchAdminTab('products')">📦 Product Master</button>
+        <button class="tab-btn" data-tab="purchases" onclick="switchAdminTab('purchases')">🛒 Purchases</button>
+        <button class="tab-btn" data-tab="usage" onclick="switchAdminTab('usage')">📤 Usage History</button>
+        <button class="tab-btn" data-tab="audits" onclick="switchAdminTab('audits')">📋 Audit Logs</button>
+        <button class="tab-btn" data-tab="reports" onclick="switchAdminTab('reports')">📊 Reports</button>
+      </div>
+
+      <div id="adminTabNow" class="card">
+        <div class="section-header">
+          <h3>📊 Live Activity Feed</h3>
+          <button class="btn btn-download btn-sm" onclick="downloadCSV('adminLiveActivityTable', 'Activity_Feed')">⬇️ Download CSV</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>User</th>
+                <th>Role</th>
+                <th>Action</th>
+                <th>Product</th>
+                <th>Qty / Info</th>
+              </tr>
+            </thead>
+            <tbody id="adminLiveActivityTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="adminTabProducts" class="card hidden">
+        <div class="section-header">
+          <h3>📦 Product Catalog</h3>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button class="btn btn-sm" onclick="openAddProductModal()">➕ Add Product</button>
+            <button class="btn btn-download btn-sm" onclick="downloadCSV('adminProductsTable', 'Product_Catalog')">⬇️ Download CSV</button>
+          </div>
+        </div>
+        <div class="search-box">
+          <input type="text" id="productSearchAdmin" placeholder="🔍 Search products..." oninput="filterProducts('adminProductsTable', this.value)">
+          <select id="categoryFilterAdmin" onchange="filterProductsByCategory('adminProductsTable', this.value)">
+            <option value="">All Categories</option>
+          </select>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th><th>Category</th><th>Unit</th><th>Purchased</th><th>Used</th><th>Remaining</th><th>Min Stock</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="adminProductsTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="adminTabPurchases" class="card hidden">
+        <div class="section-header">
+          <h3>🛒 All Purchase Records</h3>
+          <button class="btn btn-download btn-sm" onclick="downloadCSV('adminPurchasesTable', 'Purchase_Records')">⬇️ Download CSV</button>
+        </div>
+        <div class="search-box">
+          <input type="text" placeholder="🔍 Search by product or invoice..." oninput="filterTable('adminPurchasesTable', this.value)">
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th><th>Invoice #</th><th>Purchased By</th><th>Product</th><th>Qty</th><th>Price</th><th>Total</th><th>Supplier</th><th>Slip</th>
+              </tr>
+            </thead>
+            <tbody id="adminPurchasesTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="adminTabUsage" class="card hidden">
+        <div class="section-header">
+          <h3>📤 Chief Material Usage Log</h3>
+          <button class="btn btn-download btn-sm" onclick="downloadCSV('adminUsageTable', 'Usage_Records')">⬇️ Download CSV</button>
+        </div>
+        <div class="search-box">
+          <input type="text" placeholder="🔍 Search by product or chief..." oninput="filterTable('adminUsageTable', this.value)">
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th><th>Chief</th><th>Product</th><th>Available Before</th><th>Used</th><th>Remaining</th><th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody id="adminUsageTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="adminTabAudits" class="card hidden">
+        <div class="section-header">
+          <h3>📋 System Audit Logs</h3>
+          <button class="btn btn-download btn-sm" onclick="downloadCSV('adminAuditTable', 'Audit_Logs')">⬇️ Download CSV</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Timestamp</th><th>Action</th><th>User</th><th>Role</th><th>Product</th><th>Details</th>
+              </tr>
+            </thead>
+            <tbody id="adminAuditTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="adminTabReports" class="card hidden">
+        <h3>📊 Inventory Reports</h3>
+        <div class="quick-stats">
+          <div class="stat-item">
+            <div class="stat-value" id="reportTotalProducts">0</div>
+            <div class="stat-label">Total Products</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="reportTotalValue">₹0</div>
+            <div class="stat-label">Total Stock Value</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="reportLowStock">0</div>
+            <div class="stat-label">Low Stock Items</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="reportOutOfStock">0</div>
+            <div class="stat-label">Out of Stock</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem;">
+          <button class="btn btn-download btn-sm" onclick="generateStockReport()">📊 Generate Stock Report</button>
+          <button class="btn btn-warning btn-sm" onclick="generateLowStockReport()">⚠️ Low Stock Report</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PURCHASED PERSON DASHBOARD -->
+    <div id="purchasedDashboardView" class="hidden">
+      <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+        <button class="btn btn-sm" onclick="openAddProductModal()">➕ Add New Product</button>
+        <button class="btn btn-success btn-sm" onclick="openAddPurchaseModal()">🛒 Record Purchase</button>
+        <button class="btn btn-download btn-sm" onclick="downloadCSV('purchasedStockTable', 'Inventory_Status')">⬇️ Export Inventory</button>
+      </div>
+
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <div class="section-header">
+          <h3>📊 Current Inventory & Stock Status</h3>
+          <button class="btn btn-download btn-sm" onclick="downloadCSV('purchasedStockTable', 'Inventory_Status')">⬇️ Download CSV</button>
+        </div>
+        <div class="search-box">
+          <input type="text" placeholder="🔍 Search products..." oninput="filterTable('purchasedStockTable', this.value)">
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Product Name</th><th>Category</th><th>Unit</th><th>Total Purchased</th><th>Total Used</th><th>Remaining Stock</th><th>Min Level</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="purchasedStockTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-header">
+          <h3>📋 Recent Purchases & Invoices</h3>
+          <button class="btn btn-download btn-sm" onclick="downloadCSV('purchasedHistoryTable', 'Purchase_History')">⬇️ Download CSV</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th><th>Invoice #</th><th>Product</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Supplier</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="purchasedHistoryTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHIEF DASHBOARD -->
+    <div id="chiefDashboardView" class="hidden">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem;">
+        <h2>🍳 Hostel Kitchen & Material Operations</h2>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button class="btn btn-chief-color btn-sm" onclick="openRecordUsageModal()">📝 Record Material Usage</button>
+          <button class="btn btn-download btn-sm" onclick="downloadCSV('chiefStockTable', 'Chief_Stock_View')">⬇️ Export Stock</button>
+        </div>
+      </div>
+
+      <!-- Quick Stats for Chief -->
+      <div class="quick-stats">
+        <div class="stat-item">
+          <div class="stat-value" id="chiefTotalProducts">0</div>
+          <div class="stat-label">Total Products</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="chiefLowStock">0</div>
+          <div class="stat-label">Low Stock Items</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="chiefOutOfStock">0</div>
+          <div class="stat-label">Out of Stock</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="chiefTotalUsage">0</div>
+          <div class="stat-label">Total Usage Records</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <div class="section-header">
+          <h3>📊 Available Stock View</h3>
+          <button class="btn btn-download btn-sm" onclick="downloadCSV('chiefStockTable', 'Chief_Stock_View')">⬇️ Download CSV</button>
+        </div>
+        <div class="search-box">
+          <input type="text" placeholder="🔍 Search products..." oninput="filterTable('chiefStockTable', this.value)">
+          <select id="categoryFilterChief" onchange="filterProductsByCategory('chiefStockTable', this.value)">
+            <option value="">All Categories</option>
+          </select>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Product Name</th><th>Category</th><th>Available Remaining</th><th>Unit</th><th>Min Threshold</th><th>Stock Status</th>
+              </tr>
+            </thead>
+            <tbody id="chiefStockTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-header">
+          <h3>📋 Recent Recorded Usage</h3>
+          <button class="btn btn-download btn-sm" onclick="downloadCSV('chiefUsageTable', 'Chief_Usage_Records')">⬇️ Download CSV</button>
+        </div>
+        <div class="search-box">
+          <input type="text" placeholder="🔍 Search by product or purpose..." oninput="filterTable('chiefUsageTable', this.value)">
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th><th>Product</th><th>Quantity Used</th><th>Purpose</th><th>Remarks</th>
+              </tr>
+            </thead>
+            <tbody id="chiefUsageTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODALS -->
+
+  <div id="addProductModal" class="modal hidden">
+    <div class="modal-content">
+      <h3>➕ Add New Product Master</h3>
+      <form id="addProductForm" style="margin-top: 1rem;">
+        <div class="form-group"><label>Product Name *</label><input type="text" id="prodName" required></div>
+        <div class="form-group"><label>Category *</label><input type="text" id="prodCategory" placeholder="e.g. Food, Cleaning" required></div>
+        <div class="form-group"><label>Unit *</label><input type="text" id="prodUnit" placeholder="e.g. kg, Litres, Bags" required></div>
+        <div class="form-group"><label>Minimum Stock Threshold *</label><input type="number" id="prodMinStock" min="0" required></div>
+        <div class="form-group"><label>Default Supplier</label><input type="text" id="prodSupplier"></div>
+        <div class="form-group"><label>Description</label><textarea id="prodDesc" rows="3"></textarea></div>
+        <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="closeModals()">Cancel</button>
+          <button type="submit" class="btn btn-sm">Save Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="addPurchaseModal" class="modal hidden">
+    <div class="modal-content">
+      <h3>🛒 Record Stock Purchase</h3>
+      <form id="addPurchaseForm" style="margin-top: 1rem;">
+        <div class="form-group">
+          <label>Select Product *</label>
+          <select id="purProductSelect" required></select>
+        </div>
+        <div class="form-group"><label>Quantity Purchased *</label><input type="number" id="purQty" min="1" step="any" required oninput="calcPurchaseTotal()"></div>
+        <div class="form-group"><label>Unit Price (₹) *</label><input type="number" id="purPrice" min="0" step="any" required oninput="calcPurchaseTotal()"></div>
+        <div class="form-group"><label>Calculated Total Amount (₹)</label><input type="text" id="purTotal" readonly style="background: rgba(255,255,255,0.1);"></div>
+        <div class="form-group"><label>Supplier Name *</label><input type="text" id="purSupplier" required></div>
+        <div class="form-group"><label>Invoice Number *</label><input type="text" id="purInvoiceNo" required></div>
+        <div class="form-group"><label>Invoice / Bill Image</label><input type="file" id="purInvoiceFile" accept="image/*"></div>
+        <div class="form-group"><label>Remarks</label><input type="text" id="purRemarks"></div>
+        <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="closeModals()">Cancel</button>
+          <button type="submit" class="btn btn-success btn-sm">Submit Purchase</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="recordUsageModal" class="modal hidden">
+    <div class="modal-content">
+      <h3>📝 Record Material Usage (Chief)</h3>
+      <form id="recordUsageForm" style="margin-top: 1rem;">
+        <div class="form-group">
+          <label>Select Product *</label>
+          <select id="useProductSelect" required onchange="updateUsageAvailableDisplay()"></select>
+        </div>
+        <div style="font-size: 0.85rem; color: #60a5fa; margin-bottom: 1rem;">
+          📦 Available Stock: <span id="useAvailableDisplay" style="font-weight: bold;">0</span>
+          <span id="useUnitDisplay"></span>
+        </div>
+        <div class="form-group"><label>Quantity Used *</label><input type="number" id="useQty" min="0.01" step="any" required></div>
+        <div class="form-group"><label>Purpose / Location *</label><input type="text" id="usePurpose" placeholder="e.g. Hostel Kitchen Dinner" required></div>
+        <div class="form-group"><label>Remarks</label><input type="text" id="useRemarks"></div>
+        <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="closeModals()">Cancel</button>
+          <button type="submit" class="btn btn-chief-color btn-sm">Save Usage</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="slipModal" class="modal hidden">
+    <div class="modal-content">
+      <div id="printableSlip" class="slip-box">
+        <h2 style="text-align: center;">🏨 HOSTEL INVENTORY SYSTEM</h2>
+        <h4 style="text-align: center; margin-bottom: 1rem;">🧾 PURCHASE SLIP</h4>
+        <hr style="border: 1px dashed #000; margin-bottom: 1rem;">
+        <p><strong>Purchase ID:</strong> <span id="slipId"></span></p>
+        <p><strong>Invoice Number:</strong> <span id="slipInvNo"></span></p>
+        <p><strong>Date:</strong> <span id="slipDate"></span></p>
+        <p><strong>Purchased By:</strong> <span id="slipUser"></span></p>
+        <p><strong>Supplier:</strong> <span id="slipSupplier"></span></p>
+        <br>
+        <p><strong>Product:</strong> <span id="slipProduct"></span></p>
+        <p><strong>Quantity:</strong> <span id="slipQty"></span></p>
+        <p><strong>Price / Unit:</strong> ₹<span id="slipPrice"></span></p>
+        <hr style="border: 1px dashed #000; margin: 1rem 0;">
+        <p style="font-size: 1.2rem;"><strong>Grand Total: ₹<span id="slipTotal"></span></strong></p>
+        <p><strong>Remarks:</strong> <span id="slipRemarks"></span></p>
+        <div id="slipImageContainer" style="margin-top: 1rem;"></div>
+      </div>
+      <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem;">
+        <button class="btn btn-secondary btn-sm" onclick="closeModals()">Close</button>
+        <button class="btn btn-sm" onclick="window.print()">🖨️ Print Slip</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged,
+      sendPasswordResetEmail
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+      getFirestore, doc, setDoc, getDoc, collection, onSnapshot, runTransaction, serverTimestamp, query, orderBy 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { 
+      getStorage, ref, uploadBytes, getDownloadURL 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+
+    // --- FIREBASE CONFIGURATION ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyCoY9PvuqOUF_pzHeuKfXNy0aKP2fGsrZ4",
+      authDomain: "voice-69c65.firebaseapp.com",
+      projectId: "voice-69c65",
+      storageBucket: "voice-69c65.firebasestorage.app",
+      messagingSenderId: "202595045135",
+      appId: "1:202595045135:web:c33e0b3abb93d224b4b87a",
+    };
+
+    console.log("Initializing Firebase with config:", firebaseConfig);
+
+    let app, auth, db, storage;
+
+    try {
+      app = initializeApp(firebaseConfig);
+      auth = getAuth(app);
+      db = getFirestore(app);
+      storage = getStorage(app);
+      console.log("✅ Firebase initialized successfully!");
+    } catch (error) {
+      console.error("❌ Firebase initialization error:", error);
+      alert("Failed to initialize Firebase. Please check your internet connection and try again.");
+    }
+
+    let currentUser = null;
+    let currentUserRole = "";
+    let currentUserName = "";
+    let activeLoginRoleChoice = "chief";
+    let cachedProducts = {};
+    let unsubscribeFunctions = [];
+    let allCategories = new Set();
+    let isProcessing = false;
+
+    // --- CSV DOWNLOAD FUNCTION ---
+    window.downloadCSV = function(tableId, fileName) {
+      const table = document.getElementById(tableId);
+      if (!table) {
+        alert("Table not found!");
+        return;
+      }
+
+      const tableElement = table.closest('table') || table;
+      if (!tableElement) {
+        alert("No table found!");
+        return;
+      }
+
+      const rows = tableElement.querySelectorAll('tr');
+      if (rows.length === 0) {
+        alert("No data to download!");
+        return;
+      }
+
+      let csvContent = "";
+      
+      const headers = tableElement.querySelectorAll('thead th');
+      if (headers.length > 0) {
+        const headerRow = Array.from(headers).map(th => `"${th.textContent.trim().replace(/"/g, '""')}"`).join(',');
+        csvContent += headerRow + '\n';
+      }
+
+      const dataRows = tableElement.querySelectorAll('tbody tr');
+      if (dataRows.length === 0) {
+        alert("No data rows to download!");
+        return;
+      }
+
+      dataRows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        const rowData = Array.from(cells).map(td => {
+          let text = td.textContent.trim();
+          if (td.querySelector('button')) {
+            text = td.textContent.trim();
+          }
+          return `"${text.replace(/"/g, '""')}"`;
+        }).join(',');
+        csvContent += rowData + '\n';
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `${fileName}_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    };
+
+    // --- TABLE FILTER FUNCTIONS ---
+    window.filterTable = function(tableId, searchTerm) {
+      const table = document.getElementById(tableId);
+      if (!table) return;
+      const rows = table.querySelectorAll('tbody tr');
+      const term = searchTerm.toLowerCase().trim();
+      
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        if (term === '' || text.includes(term)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    };
+
+    window.filterProducts = function(tableId, searchTerm) {
+      filterTable(tableId, searchTerm);
+    };
+
+    window.filterProductsByCategory = function(tableId, category) {
+      const table = document.getElementById(tableId);
+      if (!table) return;
+      const rows = table.querySelectorAll('tbody tr');
+      
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length > 1) {
+          const rowCategory = cells[1]?.textContent || '';
+          if (category === '' || rowCategory === category) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        }
+      });
+    };
+
+    // --- UI NAVIGATION ---
+    window.selectRolePortal = function(role) {
+      activeLoginRoleChoice = role;
+      document.getElementById("portalSelectBox").classList.add("hidden");
+      document.getElementById("loginFormBox").classList.remove("hidden");
+      
+      const badge = document.getElementById("loginBadge");
+      badge.className = `badge badge-${role}`;
+      badge.innerText = `${role.replace('_', ' ').toUpperCase()} PORTAL LOGIN`;
+      
+      const btnText = document.getElementById("loginBtnText");
+      btnText.innerText = `Login as ${role.replace('_', ' ')}`;
+      
+      document.getElementById("loginError").style.display = "none";
+      document.getElementById("loginError").innerText = "";
+    };
+
+    window.showPortalSelect = function() {
+      document.getElementById("loginFormBox").classList.add("hidden");
+      document.getElementById("registerBox").classList.add("hidden");
+      document.getElementById("forgotPasswordBox").classList.add("hidden");
+      document.getElementById("portalSelectBox").classList.remove("hidden");
+      document.getElementById("loginError").style.display = "none";
+      document.getElementById("registerError").style.display = "none";
+      document.getElementById("registerSuccess").style.display = "none";
+      document.getElementById("forgotError").style.display = "none";
+      document.getElementById("forgotSuccess").style.display = "none";
+    };
+
+    window.showRegisterBox = function() {
+      document.getElementById("portalSelectBox").classList.add("hidden");
+      document.getElementById("loginFormBox").classList.add("hidden");
+      document.getElementById("forgotPasswordBox").classList.add("hidden");
+      document.getElementById("registerBox").classList.remove("hidden");
+      document.getElementById("loginError").style.display = "none";
+      document.getElementById("registerError").style.display = "none";
+      document.getElementById("registerSuccess").style.display = "none";
+    };
+
+    window.showForgotPassword = function() {
+      document.getElementById("portalSelectBox").classList.add("hidden");
+      document.getElementById("loginFormBox").classList.add("hidden");
+      document.getElementById("registerBox").classList.add("hidden");
+      document.getElementById("forgotPasswordBox").classList.remove("hidden");
+      document.getElementById("loginError").style.display = "none";
+      document.getElementById("forgotError").style.display = "none";
+      document.getElementById("forgotSuccess").style.display = "none";
+    };
+
+    window.closeModals = function() {
+      document.querySelectorAll(".modal").forEach(m => m.classList.add("hidden"));
+    };
+
+    window.openAddProductModal = () => {
+      document.getElementById("addProductForm").reset();
+      document.getElementById("addProductModal").classList.remove("hidden");
+    };
+    
+    window.openAddPurchaseModal = () => {
+      populateProductSelect("purProductSelect");
+      document.getElementById("addPurchaseForm").reset();
+      document.getElementById("purTotal").value = "0";
+      document.getElementById("addPurchaseModal").classList.remove("hidden");
+    };
+    
+    window.openRecordUsageModal = () => {
+      populateProductSelect("useProductSelect");
+      document.getElementById("recordUsageForm").reset();
+      updateUsageAvailableDisplay();
+      document.getElementById("recordUsageModal").classList.remove("hidden");
+    };
+    
+    window.calcPurchaseTotal = function() {
+      const q = parseFloat(document.getElementById("purQty").value) || 0;
+      const p = parseFloat(document.getElementById("purPrice").value) || 0;
+      document.getElementById("purTotal").value = (q * p).toFixed(2);
+    };
+
+    window.updateUsageAvailableDisplay = function() {
+      const pid = document.getElementById("useProductSelect").value;
+      if (pid && cachedProducts[pid]) {
+        const product = cachedProducts[pid];
+        document.getElementById("useAvailableDisplay").innerText = 
+          `${product.remainingStock || 0}`;
+        document.getElementById("useUnitDisplay").innerText = 
+          `${product.unit || ''}`;
+      } else {
+        document.getElementById("useAvailableDisplay").innerText = "0";
+        document.getElementById("useUnitDisplay").innerText = "";
+      }
+    };
+
+    function populateProductSelect(elementId) {
+      const select = document.getElementById(elementId);
+      select.innerHTML = "";
+      const products = Object.keys(cachedProducts);
+      
+      if (products.length === 0) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.innerText = "No products available";
+        select.appendChild(opt);
+        return;
+      }
+      
+      products.forEach(id => {
+        const p = cachedProducts[id];
+        const opt = document.createElement("option");
+        opt.value = id;
+        const remaining = p.remainingStock || 0;
+        opt.innerText = `${p.name} (${remaining} ${p.unit || ''} available)`;
+        select.appendChild(opt);
+      });
+      
+      if (elementId === "useProductSelect") {
+        updateUsageAvailableDisplay();
+      }
+    }
+
+    function updateCategoryFilters() {
+      const filters = ['categoryFilterAdmin', 'categoryFilterChief'];
+      filters.forEach(filterId => {
+        const select = document.getElementById(filterId);
+        if (select) {
+          const currentValue = select.value;
+          select.innerHTML = '<option value="">All Categories</option>';
+          allCategories.forEach(cat => {
+            const opt = document.createElement('option');
+            opt.value = cat;
+            opt.textContent = cat;
+            select.appendChild(opt);
+          });
+          select.value = currentValue;
+        }
+      });
+    }
+
+    // --- AUTHENTICATION ---
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      
+      if (isProcessing) return;
+      isProcessing = true;
+      
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+      const errorDiv = document.getElementById("loginError");
+      const btnText = document.getElementById("loginBtnText");
+      const spinner = document.getElementById("loginSpinner");
+
+      errorDiv.style.display = "none";
+      errorDiv.innerText = "";
+      btnText.innerText = "Logging in...";
+      spinner.style.display = "inline-block";
+
+      try {
+        console.log("Attempting login with email:", email);
+        const userCred = await signInWithEmailAndPassword(auth, email, password);
+        console.log("Login successful for user:", userCred.user.uid);
+
+        const userDoc = await getDoc(doc(db, "users", userCred.user.uid));
+
+        if (userDoc.exists()) {
+          const role = userDoc.data().role;
+          console.log("User role:", role);
+          if (role !== activeLoginRoleChoice) {
+            errorDiv.innerText = `Role mismatch! Account is registered as [${role.toUpperCase()}]. Please select the correct portal.`;
+            errorDiv.style.display = "block";
+            await signOut(auth);
+          }
+        } else {
+          errorDiv.innerText = "User profile not found. Please contact administrator.";
+          errorDiv.style.display = "block";
+          await signOut(auth);
+        }
+      } catch (err) {
+        console.error("Login error:", err);
+        let errorMessage = "Login failed: ";
+        switch (err.code) {
+          case 'auth/user-not-found':
+            errorMessage += "No user found with this email. Please register first.";
+            break;
+          case 'auth/wrong-password':
+            errorMessage += "Incorrect password. Please try again.";
+            break;
+          case 'auth/invalid-email':
+            errorMessage += "Invalid email format.";
+            break;
+          case 'auth/too-many-requests':
+            errorMessage += "Too many failed attempts. Please try again later.";
+            break;
+          case 'auth/network-request-failed':
+            errorMessage += "Network error. Please check your internet connection.";
+            break;
+          default:
+            errorMessage += err.message;
+        }
+        errorDiv.innerText = errorMessage;
+        errorDiv.style.display = "block";
+      } finally {
+        btnText.innerText = "Sign In";
+        spinner.style.display = "none";
+        isProcessing = false;
+      }
+    });
+
+    // --- FORGOT PASSWORD ---
+    document.getElementById("forgotPasswordForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      
+      if (isProcessing) return;
+      isProcessing = true;
+      
+      const email = document.getElementById("forgotEmail").value;
+      const errorDiv = document.getElementById("forgotError");
+      const successDiv = document.getElementById("forgotSuccess");
+      const btnText = document.getElementById("forgotBtnText");
+      const spinner = document.getElementById("forgotSpinner");
+
+      errorDiv.style.display = "none";
+      errorDiv.innerText = "";
+      successDiv.style.display = "none";
+      successDiv.innerText = "";
+      btnText.innerText = "Sending...";
+      spinner.style.display = "inline-block";
+
+      try {
+        console.log("Sending password reset email to:", email);
+        await sendPasswordResetEmail(auth, email);
+        console.log("Password reset email sent successfully");
+        
+        successDiv.innerText = "✅ Password reset link sent! Please check your email inbox.";
+        successDiv.style.display = "block";
+        document.getElementById("forgotPasswordForm").reset();
+        
+        // Auto redirect to login after 3 seconds
+        setTimeout(() => {
+          showPortalSelect();
+          document.getElementById("loginEmail").value = email;
+          const loginError = document.getElementById("loginError");
+          loginError.innerText = "📧 Check your email for the password reset link.";
+          loginError.style.display = "block";
+          loginError.style.background = "rgba(16, 185, 129, 0.2)";
+          loginError.style.color = "#6ee7b7";
+          loginError.style.borderColor = "var(--purchased-color)";
+        }, 3000);
+      } catch (err) {
+        console.error("Password reset error:", err);
+        let errorMessage = "Failed to send reset link: ";
+        switch (err.code) {
+          case 'auth/user-not-found':
+            errorMessage += "No user found with this email address.";
+            break;
+          case 'auth/invalid-email':
+            errorMessage += "Invalid email format.";
+            break;
+          case 'auth/network-request-failed':
+            errorMessage += "Network error. Please check your internet connection.";
+            break;
+          case 'auth/too-many-requests':
+            errorMessage += "Too many requests. Please try again later.";
+            break;
+          default:
+            errorMessage += err.message;
+        }
+        errorDiv.innerText = errorMessage;
+        errorDiv.style.display = "block";
+      } finally {
+        btnText.innerText = "Send Reset Link";
+        spinner.style.display = "none";
+        isProcessing = false;
+      }
+    });
+
+    // --- REGISTRATION ---
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      
+      if (isProcessing) return;
+      isProcessing = true;
+      
+      const name = document.getElementById("regName").value.trim();
+      const email = document.getElementById("regEmail").value.trim();
+      const password = document.getElementById("regPassword").value;
+      const role = document.getElementById("regRole").value;
+      
+      const errorDiv = document.getElementById("registerError");
+      const successDiv = document.getElementById("registerSuccess");
+      const btnText = document.getElementById("registerBtnText");
+      const spinner = document.getElementById("registerSpinner");
+
+      errorDiv.style.display = "none";
+      successDiv.style.display = "none";
+      btnText.innerText = "Creating...";
+      spinner.style.display = "inline-block";
+
+      try {
+        if (!name || !email || !password) {
+          throw new Error("Please fill in all fields.");
+        }
+        if (password.length < 6) {
+          throw new Error("Password must be at least 6 characters long.");
+        }
+
+        console.log("Creating user with email:", email);
+        const userCred = await createUserWithEmailAndPassword(auth, email, password);
+        console.log("User created:", userCred.user.uid);
+
+        await setDoc(doc(db, "users", userCred.user.uid), {
+          uid: userCred.user.uid,
+          fullName: name,
+          email: email,
+          role: role,
+          createdAt: serverTimestamp()
+        });
+
+        console.log("User data saved to Firestore");
+
+        successDiv.innerText = `✅ Account registered successfully! You are now logged in as ${role.replace('_', ' ')}.`;
+        successDiv.style.display = "block";
+        document.getElementById("registerForm").reset();
+
+        setTimeout(() => {
+          document.getElementById("registerBox").classList.add("hidden");
+          document.getElementById("portalSelectBox").classList.remove("hidden");
+          document.getElementById("loginError").style.display = "none";
+          document.getElementById("registerError").style.display = "none";
+          document.getElementById("registerSuccess").style.display = "none";
+          document.getElementById("loginEmail").value = email;
+          alert(`✅ Registration successful! You are now logged in as ${role.replace('_', ' ')}. The system will redirect you to your dashboard.`);
+        }, 1500);
+
+      } catch (err) {
+        console.error("Registration error:", err);
+        let errorMessage = "Registration failed: ";
+        switch (err.code) {
+          case 'auth/email-already-in-use':
+            errorMessage += "This email is already registered. Please use a different email or try logging in.";
+            break;
+          case 'auth/invalid-email':
+            errorMessage += "Invalid email format. Please enter a valid email address.";
+            break;
+          case 'auth/weak-password':
+            errorMessage += "Password is too weak. Please use at least 6 characters.";
+            break;
+          case 'auth/network-request-failed':
+            errorMessage += "Network error. Please check your internet connection and try again.";
+            break;
+          default:
+            errorMessage += err.message;
+        }
+        errorDiv.innerText = errorMessage;
+        errorDiv.style.display = "block";
+      } finally {
+        btnText.innerText = "Create User";
+        spinner.style.display = "none";
+        isProcessing = false;
+      }
+    });
+
+    window.handleLogout = () => {
+      unsubscribeFunctions.forEach(unsub => unsub());
+      unsubscribeFunctions = [];
+      signOut(auth);
+    };
+
+    // --- AUTH STATE OBSERVER ---
+    onAuthStateChanged(auth, async (user) => {
+      console.log("Auth state changed:", user ? "User logged in" : "No user");
+      
+      if (user) {
+        currentUser = user;
+        try {
+          const uDoc = await getDoc(doc(db, "users", user.uid));
+          if (uDoc.exists()) {
+            const data = uDoc.data();
+            currentUserRole = data.role;
+            currentUserName = data.fullName || data.email;
+
+            console.log("User data loaded:", { role: currentUserRole, name: currentUserName });
+
+            document.getElementById("appHeader").classList.remove("hidden");
+            document.getElementById("userEmailTag").innerText = data.email;
+            const badge = document.getElementById("userRoleBadge");
+            badge.className = `badge badge-${currentUserRole}`;
+            badge.innerText = currentUserRole.replace('_', ' ');
+
+            document.getElementById("authView").classList.add("hidden");
+            document.getElementById("adminDashboardView").classList.add("hidden");
+            document.getElementById("purchasedDashboardView").classList.add("hidden");
+            document.getElementById("chiefDashboardView").classList.add("hidden");
+
+            if (currentUserRole === 'admin') {
+              document.getElementById("adminDashboardView").classList.remove("hidden");
+            } else if (currentUserRole === 'purchased_person') {
+              document.getElementById("purchasedDashboardView").classList.remove("hidden");
+            } else if (currentUserRole === 'chief') {
+              document.getElementById("chiefDashboardView").classList.remove("hidden");
+            }
+
+            attachRealTimeListeners();
+          } else {
+            console.error("User document does not exist for UID:", user.uid);
+            alert("User profile not found. Please contact administrator.");
+            signOut(auth);
+          }
+        } catch (err) {
+          console.error("Error fetching user data:", err);
+          alert("Error loading user data. Please try again.");
+          signOut(auth);
+        }
+      } else {
+        currentUser = null;
+        currentUserRole = "";
+        currentUserName = "";
+        
+        document.getElementById("appHeader").classList.add("hidden");
+        document.getElementById("adminDashboardView").classList.add("hidden");
+        document.getElementById("purchasedDashboardView").classList.add("hidden");
+        document.getElementById("chiefDashboardView").classList.add("hidden");
+        document.getElementById("authView").classList.remove("hidden");
+        showPortalSelect();
+      }
+    });
+
+    // --- PRODUCT OPERATIONS ---
+    document.getElementById("addProductForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      
+      if (isProcessing) return;
+      isProcessing = true;
+      
+      const name = document.getElementById("prodName").value.trim();
+      const category = document.getElementById("prodCategory").value.trim();
+      const unit = document.getElementById("prodUnit").value.trim();
+      const minStock = parseFloat(document.getElementById("prodMinStock").value) || 0;
+      const supplier = document.getElementById("prodSupplier").value.trim();
+      const desc = document.getElementById("prodDesc").value.trim();
+
+      if (!name || !category || !unit) {
+        alert("Please fill in all required fields.");
+        isProcessing = false;
+        return;
+      }
+
+      try {
+        const pRef = doc(collection(db, "products"));
+        await setDoc(pRef, {
+          productId: pRef.id,
+          name: name,
+          category: category,
+          unit: unit,
+          totalPurchased: 0,
+          totalUsed: 0,
+          remainingStock: 0,
+          minStock: minStock,
+          supplier: supplier || "",
+          description: desc || "",
+          createdBy: currentUserName,
+          createdAt: serverTimestamp()
+        });
+
+        const logRef = doc(collection(db, "auditLogs"));
+        await setDoc(logRef, {
+          action: "PRODUCT_CREATED",
+          userId: currentUser.uid,
+          userName: currentUserName,
+          role: currentUserRole,
+          productName: name,
+          details: `Created product: ${name}`,
+          timestamp: serverTimestamp()
+        });
+
+        closeModals();
+        alert("✅ Product created successfully!");
+        document.getElementById("addProductForm").reset();
+      } catch (err) {
+        alert("Error adding product: " + err.message);
+      } finally {
+        isProcessing = false;
+      }
+    });
+
+    // --- PURCHASE OPERATIONS ---
+    document.getElementById("addPurchaseForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      
+      if (isProcessing) return;
+      isProcessing = true;
+      
+      const productId = document.getElementById("purProductSelect").value;
+      const qty = parseFloat(document.getElementById("purQty").value);
+      const price = parseFloat(document.getElementById("purPrice").value);
+      const supplier = document.getElementById("purSupplier").value.trim();
+      const invoiceNo = document.getElementById("purInvoiceNo").value.trim();
+      const remarks = document.getElementById("purRemarks").value.trim();
+      const fileInput = document.getElementById("purInvoiceFile");
+
+      if (!productId || !qty || !price || !supplier || !invoiceNo) {
+        alert("Please fill in all required fields.");
+        isProcessing = false;
+        return;
+      }
+
+      if (qty <= 0 || price < 0) {
+        alert("Quantity must be greater than 0 and price must be non-negative.");
+        isProcessing = false;
+        return;
+      }
+
+      let invoiceUrl = "";
+      try {
+        if (fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+          const storageRef = ref(storage, `invoices/${Date.now()}_${file.name}`);
+          const snapshot = await uploadBytes(storageRef, file);
+          invoiceUrl = await getDownloadURL(snapshot.ref);
+        }
+
+        const totalAmount = qty * price;
+
+        await runTransaction(db, async (transaction) => {
+          const productRef = doc(db, "products", productId);
+          const productDoc = await transaction.get(productRef);
+
+          if (!productDoc.exists()) throw new Error("Product does not exist!");
+
+          const pData = productDoc.data();
+          const newPurchased = (pData.totalPurchased || 0) + qty;
+          const newRemaining = (pData.remainingStock || 0) + qty;
+
+          transaction.update(productRef, {
+            totalPurchased: newPurchased,
+            remainingStock: newRemaining
+          });
+
+          const purchaseRef = doc(collection(db, "purchases"));
+          transaction.set(purchaseRef, {
+            purchaseId: purchaseRef.id,
+            productId: productId,
+            productName: pData.name,
+            category: pData.category || "",
+            quantity: qty,
+            unit: pData.unit || "",
+            pricePerUnit: price,
+            totalAmount: totalAmount,
+            supplier: supplier,
+            invoiceNumber: invoiceNo,
+            invoiceUrl: invoiceUrl,
+            purchasedBy: currentUserName,
+            purchasedByUid: currentUser.uid,
+            remarks: remarks || "",
+            timestamp: serverTimestamp()
+          });
+
+          const transRef = doc(collection(db, "transactions"));
+          transaction.set(transRef, {
+            type: "PURCHASE",
+            productId: productId,
+            productName: pData.name,
+            qty: qty,
+            userId: currentUser.uid,
+            userName: currentUserName,
+            role: currentUserRole,
+            timestamp: serverTimestamp()
+          });
+
+          const auditRef = doc(collection(db, "auditLogs"));
+          transaction.set(auditRef, {
+            action: "PURCHASE_CREATED",
+            userId: currentUser.uid,
+            userName: currentUserName,
+            role: currentUserRole,
+            productName: pData.name,
+            details: `Purchased ${qty} ${pData.unit} for ₹${totalAmount.toFixed(2)}`,
+            timestamp: serverTimestamp()
+          });
+        });
+
+        closeModals();
+        alert("✅ Purchase successfully committed!");
+        document.getElementById("addPurchaseForm").reset();
+        document.getElementById("purTotal").value = "0";
+      } catch (err) {
+        alert("Transaction failed: " + (err.message || err));
+      } finally {
+        isProcessing = false;
+      }
+    });
+
+    // --- USAGE OPERATIONS ---
+    document.getElementById("recordUsageForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      
+      if (isProcessing) return;
+      isProcessing = true;
+      
+      const productId = document.getElementById("useProductSelect").value;
+      const qtyUsed = parseFloat(document.getElementById("useQty").value);
+      const purpose = document.getElementById("usePurpose").value.trim();
+      const remarks = document.getElementById("useRemarks").value.trim();
+
+      if (!productId || !qtyUsed || !purpose) {
+        alert("Please select a product, enter quantity, and specify purpose.");
+        isProcessing = false;
+        return;
+      }
+
+      if (qtyUsed <= 0) {
+        alert("Quantity used must be greater than 0.");
+        isProcessing = false;
+        return;
+      }
+
+      try {
+        await runTransaction(db, async (transaction) => {
+          const productRef = doc(db, "products", productId);
+          const productDoc = await transaction.get(productRef);
+
+          if (!productDoc.exists()) throw new Error("Product not found!");
+
+          const pData = productDoc.data();
+          const available = pData.remainingStock || 0;
+
+          if (available < qtyUsed) {
+            throw new Error(`INSUFFICIENT STOCK! Requested: ${qtyUsed} ${pData.unit}, Available: ${available} ${pData.unit}`);
+          }
+
+          const newUsed = (pData.totalUsed || 0) + qtyUsed;
+          const newRemaining = available - qtyUsed;
+
+          transaction.update(productRef, {
+            totalUsed: newUsed,
+            remainingStock: newRemaining
+          });
+
+          const usageRef = doc(collection(db, "usage"));
+          transaction.set(usageRef, {
+            usageId: usageRef.id,
+            productId: productId,
+            productName: pData.name,
+            quantityUsed: qtyUsed,
+            unit: pData.unit || "",
+            availableBefore: available,
+            remainingAfter: newRemaining,
+            chiefName: currentUserName,
+            chiefUid: currentUser.uid,
+            purpose: purpose,
+            remarks: remarks || "",
+            timestamp: serverTimestamp()
+          });
+
+          const transRef = doc(collection(db, "transactions"));
+          transaction.set(transRef, {
+            type: "USAGE",
+            productId: productId,
+            productName: pData.name,
+            qty: qtyUsed,
+            userId: currentUser.uid,
+            userName: currentUserName,
+            role: currentUserRole,
+            timestamp: serverTimestamp()
+          });
+
+          const auditRef = doc(collection(db, "auditLogs"));
+          transaction.set(auditRef, {
+            action: "USAGE_CREATED",
+            userId: currentUser.uid,
+            userName: currentUserName,
+            role: currentUserRole,
+            productName: pData.name,
+            details: `Used ${qtyUsed} ${pData.unit} for ${purpose}`,
+            timestamp: serverTimestamp()
+          });
+        });
+
+        closeModals();
+        alert("✅ Usage recorded successfully! Stock updated.");
+        document.getElementById("recordUsageForm").reset();
+      } catch (err) {
+        alert(err.message || err);
+      } finally {
+        isProcessing = false;
+      }
+    });
+
+    // --- REPORT FUNCTIONS ---
+    window.generateStockReport = function() {
+      const products = Object.values(cachedProducts);
+      if (products.length === 0) {
+        alert("No products available to generate report.");
+        return;
+      }
+
+      let report = "=== INVENTORY STOCK REPORT ===\n";
+      report += `Generated: ${new Date().toLocaleString()}\n`;
+      report += "=".repeat(50) + "\n\n";
+      report += "Product\tCategory\tRemaining\tMin Stock\tStatus\n";
+      report += "-".repeat(60) + "\n";
+
+      products.forEach(p => {
+        const remaining = p.remainingStock || 0;
+        let status = "AVAILABLE";
+        if (remaining <= 0) status = "OUT OF STOCK";
+        else if (remaining <= p.minStock) status = "LOW STOCK";
+        report += `${p.name}\t${p.category}\t${remaining}\t${p.minStock}\t${status}\n`;
+      });
+
+      const blob = new Blob([report], { type: 'text/plain;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.setAttribute('href', URL.createObjectURL(blob));
+      link.setAttribute('download', `Stock_Report_${new Date().toISOString().slice(0,10)}.txt`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      alert("✅ Stock report downloaded successfully!");
+    };
+
+    window.generateLowStockReport = function() {
+      const products = Object.values(cachedProducts);
+      const lowStockItems = products.filter(p => {
+        const remaining = p.remainingStock || 0;
+        return remaining <= p.minStock;
+      });
+
+      if (lowStockItems.length === 0) {
+        alert("No low stock items found. All products are adequately stocked!");
+        return;
+      }
+
+      let report = "=== LOW STOCK ALERT REPORT ===\n";
+      report += `Generated: ${new Date().toLocaleString()}\n`;
+      report += "=".repeat(50) + "\n\n";
+      report += "Product\tCategory\tRemaining\tMin Stock\tStatus\n";
+      report += "-".repeat(60) + "\n";
+
+      lowStockItems.forEach(p => {
+        const remaining = p.remainingStock || 0;
+        const status = remaining <= 0 ? "OUT OF STOCK" : "LOW STOCK";
+        report += `${p.name}\t${p.category}\t${remaining}\t${p.minStock}\t${status}\n`;
+      });
+
+      const blob = new Blob([report], { type: 'text/plain;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.setAttribute('href', URL.createObjectURL(blob));
+      link.setAttribute('download', `Low_Stock_Report_${new Date().toISOString().slice(0,10)}.txt`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      alert(`✅ Low stock report downloaded! Found ${lowStockItems.length} items.`);
+    };
+
+    // --- REAL-TIME LISTENERS ---
+    function attachRealTimeListeners() {
+      unsubscribeFunctions.forEach(unsub => unsub());
+      unsubscribeFunctions = [];
+
+      // Products listener
+      const unsubProducts = onSnapshot(collection(db, "products"), (snapshot) => {
+        cachedProducts = {};
+        allCategories = new Set();
+        let totalCount = 0, totPur = 0, totUsed = 0, totRem = 0, alertCount = 0;
+        let lowStockCount = 0, outOfStockCount = 0;
+        let totalStockValue = 0;
+        
+        let admTable = "", purTable = "", chfTable = "";
+
+        snapshot.forEach(docSnap => {
+          const p = docSnap.data();
+          cachedProducts[docSnap.id] = p;
+          if (p.category) allCategories.add(p.category);
+          
+          totalCount++;
+          totPur += p.totalPurchased || 0;
+          totUsed += p.totalUsed || 0;
+          totRem += p.remainingStock || 0;
+
+          const remaining = p.remainingStock || 0;
+          let status = "AVAILABLE";
+          let badgeClass = "badge-success";
+          let indicator = "green";
+          
+          if (remaining <= 0) {
+            status = "OUT OF STOCK";
+            badgeClass = "badge-danger";
+            indicator = "red";
+            outOfStockCount++;
+            alertCount++;
+          } else if (remaining <= p.minStock) {
+            status = "LOW STOCK";
+            badgeClass = "badge-warning";
+            indicator = "yellow";
+            lowStockCount++;
+            alertCount++;
+          }
+
+          totalStockValue += remaining * (p.lastPrice || 0);
+
+          const row = `<tr>
+            <td>${p.name || ''}</td>
+            <td>${p.category || ''}</td>
+            <td>${p.unit || ''}</td>
+            <td>${p.totalPurchased || 0}</td>
+            <td>${p.totalUsed || 0}</td>
+            <td><strong>${remaining}</strong></td>
+            <td>${p.minStock || 0}</td>
+            <td><span class="stock-indicator ${indicator}"></span><span class="badge ${badgeClass}">${status}</span></td>
+          </tr>`;
+
+          admTable += row;
+          purTable += row;
+          
+          chfTable += `<tr>
+            <td>${p.name || ''}</td>
+            <td>${p.category || ''}</td>
+            <td><strong>${remaining}</strong></td>
+            <td>${p.unit || ''}</td>
+            <td>${p.minStock || 0}</td>
+            <td><span class="stock-indicator ${indicator}"></span><span class="badge ${badgeClass}">${status}</span></td>
+          </tr>`;
+        });
+
+        updateCategoryFilters();
+
+        const badge = document.getElementById("alertCount");
+        const notif = document.getElementById("notificationBadge");
+        if (alertCount > 0) {
+          notif.style.display = "inline-block";
+          badge.innerText = alertCount;
+        } else {
+          notif.style.display = "none";
+        }
+
+        if (currentUserRole === 'admin') {
+          document.getElementById("admTotalProducts").innerText = totalCount;
+          document.getElementById("admTotalPurchased").innerText = totPur;
+          document.getElementById("admTotalUsed").innerText = totUsed;
+          document.getElementById("admRemainingStock").innerText = totRem;
+          document.getElementById("admAlertStock").innerText = alertCount;
+          document.getElementById("adminProductsTable").innerHTML = admTable || '<tr><td colspan="8" style="text-align:center;">No products found</td></tr>';
+          
+          document.getElementById("reportTotalProducts").innerText = totalCount;
+          document.getElementById("reportTotalValue").innerText = "₹" + totalStockValue.toFixed(2);
+          document.getElementById("reportLowStock").innerText = lowStockCount;
+          document.getElementById("reportOutOfStock").innerText = outOfStockCount;
+        } 
+        else if (currentUserRole === 'purchased_person') {
+          document.getElementById("purchasedStockTable").innerHTML = purTable || '<tr><td colspan="8" style="text-align:center;">No products found</td></tr>';
+        } 
+        else if (currentUserRole === 'chief') {
+          document.getElementById("chiefStockTable").innerHTML = chfTable || '<tr><td colspan="6" style="text-align:center;">No products found</td></tr>';
+          document.getElementById("chiefTotalProducts").innerText = totalCount;
+          document.getElementById("chiefLowStock").innerText = lowStockCount;
+          document.getElementById("chiefOutOfStock").innerText = outOfStockCount;
+        }
+        
+        populateProductSelect("purProductSelect");
+        populateProductSelect("useProductSelect");
+      }, (error) => {
+        console.error("Products listener error:", error);
+      });
+      unsubscribeFunctions.push(unsubProducts);
+
+      // Purchases listener
+      const unsubPurchases = onSnapshot(query(collection(db, "purchases"), orderBy("timestamp", "desc")), (snapshot) => {
+        let admPurchases = "", purPurchases = "";
+        let totalSpend = 0;
+
+        snapshot.forEach(docSnap => {
+          const pur = docSnap.data();
+          totalSpend += pur.totalAmount || 0;
+          const dateStr = pur.timestamp ? new Date(pur.timestamp.toDate()).toLocaleString() : "Just now";
+
+          const row = `<tr>
+            <td>${dateStr}</td>
+            <td>${pur.invoiceNumber || ''}</td>
+            <td>${pur.purchasedBy || ''}</td>
+            <td>${pur.productName || ''}</td>
+            <td>${pur.quantity || 0} ${pur.unit || ''}</td>
+            <td>₹${(pur.pricePerUnit || 0).toFixed(2)}</td>
+            <td>₹${(pur.totalAmount || 0).toFixed(2)}</td>
+            <td>${pur.supplier || ''}</td>
+            <td><button class="btn btn-sm" style="padding:0.2rem 0.5rem; font-size:0.75rem;" onclick='openSlipModal(${JSON.stringify(pur).replace(/'/g, "&#39;")})'>🧾 View Slip</button></td>
+          </tr>`;
+
+          admPurchases += row;
+          purPurchases += row;
+        });
+
+        if (currentUserRole === 'admin') {
+          document.getElementById("admTotalSpend").innerText = "₹" + totalSpend.toFixed(2);
+          document.getElementById("adminPurchasesTable").innerHTML = admPurchases || '<tr><td colspan="9" style="text-align:center;">No purchase records found</td></tr>';
+        } else if (currentUserRole === 'purchased_person') {
+          document.getElementById("purchasedHistoryTable").innerHTML = purPurchases || '<tr><td colspan="8" style="text-align:center;">No purchase records found</td></tr>';
+        }
+      }, (error) => {
+        console.error("Purchases listener error:", error);
+      });
+      unsubscribeFunctions.push(unsubPurchases);
+
+      // Usage listener
+      const unsubUsage = onSnapshot(query(collection(db, "usage"), orderBy("timestamp", "desc")), (snapshot) => {
+        let admUsage = "", chfUsage = "";
+        let totalUsageCount = 0;
+
+        snapshot.forEach(docSnap => {
+          const u = docSnap.data();
+          totalUsageCount++;
+          const dateStr = u.timestamp ? new Date(u.timestamp.toDate()).toLocaleString() : "Just now";
+
+          const row = `<tr>
+            <td>${dateStr}</td>
+            <td>${u.chiefName || ''}</td>
+            <td>${u.productName || ''}</td>
+            <td>${u.availableBefore || 0} ${u.unit || ''}</td>
+            <td>${u.quantityUsed || 0} ${u.unit || ''}</td>
+            <td>${u.remainingAfter || 0} ${u.unit || ''}</td>
+            <td>${u.purpose || ''}</td>
+          </tr>`;
+
+          admUsage += row;
+          chfUsage += `<tr>
+            <td>${dateStr}</td>
+            <td>${u.productName || ''}</td>
+            <td>${u.quantityUsed || 0} ${u.unit || ''}</td>
+            <td>${u.purpose || ''}</td>
+            <td>${u.remarks || '-'}</td>
+          </tr>`;
+        });
+
+        if (currentUserRole === 'admin') {
+          document.getElementById("adminUsageTable").innerHTML = admUsage || '<tr><td colspan="7" style="text-align:center;">No usage records found</td></tr>';
+        } else if (currentUserRole === 'chief') {
+          document.getElementById("chiefUsageTable").innerHTML = chfUsage || '<tr><td colspan="5" style="text-align:center;">No usage records found</td></tr>';
+          document.getElementById("chiefTotalUsage").innerText = totalUsageCount;
+        }
+      }, (error) => {
+        console.error("Usage listener error:", error);
+      });
+      unsubscribeFunctions.push(unsubUsage);
+
+      // Audit logs listener (admin only)
+      if (currentUserRole === 'admin') {
+        const unsubAudits = onSnapshot(query(collection(db, "auditLogs"), orderBy("timestamp", "desc")), (snapshot) => {
+          let liveFeed = "", auditRows = "";
+
+          snapshot.forEach(docSnap => {
+            const log = docSnap.data();
+            const dateStr = log.timestamp ? new Date(log.timestamp.toDate()).toLocaleString() : "Just now";
+
+            liveFeed += `<tr>
+              <td>${dateStr}</td>
+              <td>${log.userName || ''}</td>
+              <td><span class="badge badge-${log.role || 'chief'}">${log.role || ''}</span></td>
+              <td><strong>${log.action || ''}</strong></td>
+              <td>${log.productName || '-'}</td>
+              <td>${log.details || '-'}</td>
+            </tr>`;
+
+            auditRows += `<tr>
+              <td>${dateStr}</td>
+              <td>${log.action || ''}</td>
+              <td>${log.userName || ''}</td>
+              <td>${log.role || ''}</td>
+              <td>${log.productName || '-'}</td>
+              <td>${log.details || '-'}</td>
+            </tr>`;
+          });
+
+          document.getElementById("adminLiveActivityTable").innerHTML = liveFeed || '<tr><td colspan="6" style="text-align:center;">No activity yet</td></tr>';
+          document.getElementById("adminAuditTable").innerHTML = auditRows || '<tr><td colspan="6" style="text-align:center;">No audit logs found</td></tr>';
+        }, (error) => {
+          console.error("Audit logs listener error:", error);
+        });
+        unsubscribeFunctions.push(unsubAudits);
+      }
+    }
+
+    // --- PURCHASE SLIP ---
+    window.openSlipModal = function(pur) {
+      document.getElementById("slipId").innerText = pur.purchaseId || '';
+      document.getElementById("slipInvNo").innerText = pur.invoiceNumber || '';
+      document.getElementById("slipDate").innerText = pur.timestamp ? new Date(pur.timestamp.toDate()).toLocaleString() : "N/A";
+      document.getElementById("slipUser").innerText = pur.purchasedBy || '';
+      document.getElementById("slipSupplier").innerText = pur.supplier || '';
+      document.getElementById("slipProduct").innerText = pur.productName || '';
+      document.getElementById("slipQty").innerText = `${pur.quantity || 0} ${pur.unit || ''}`;
+      document.getElementById("slipPrice").innerText = (pur.pricePerUnit || 0).toFixed(2);
+      document.getElementById("slipTotal").innerText = (pur.totalAmount || 0).toFixed(2);
+      document.getElementById("slipRemarks").innerText = pur.remarks || 'None';
+
+      const imgCont = document.getElementById("slipImageContainer");
+      imgCont.innerHTML = pur.invoiceUrl ? `<img src="${pur.invoiceUrl}" style="max-width:100%; border-radius:6px; margin-top:1rem;">` : '';
+
+      document.getElementById("slipModal").classList.remove("hidden");
+    };
+
+    // --- ADMIN TAB SWITCHER ---
+    window.switchAdminTab = function(tabKey) {
+      document.querySelectorAll(".tabs .tab-btn").forEach(b => b.classList.remove("active"));
+      const activeBtn = document.querySelector(`.tabs .tab-btn[data-tab="${tabKey}"]`);
+      if (activeBtn) activeBtn.classList.add("active");
+
+      document.getElementById("adminTabNow").classList.add("hidden");
+      document.getElementById("adminTabProducts").classList.add("hidden");
+      document.getElementById("adminTabPurchases").classList.add("hidden");
+      document.getElementById("adminTabUsage").classList.add("hidden");
+      document.getElementById("adminTabAudits").classList.add("hidden");
+      document.getElementById("adminTabReports").classList.add("hidden");
+
+      const tabMap = {
+        'now': 'adminTabNow',
+        'products': 'adminTabProducts',
+        'purchases': 'adminTabPurchases',
+        'usage': 'adminTabUsage',
+        'audits': 'adminTabAudits',
+        'reports': 'adminTabReports'
+      };
+      
+      if (tabMap[tabKey]) {
+        document.getElementById(tabMap[tabKey]).classList.remove("hidden");
+      }
+    };
+
+    // --- PARTICLES ---
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    function resizeCanvas() { 
+      canvas.width = window.innerWidth; 
+      canvas.height = window.innerHeight; 
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    
+    const particles = Array.from({ length: 35 }, () => ({
+      x: Math.random() * canvas.width, 
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.4, 
+      vy: (Math.random() - 0.5) * 0.4, 
+      r: Math.random() * 2 + 1
+    }));
+    
+    function drawParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.x += p.vx; 
+        p.y += p.vy;
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+        ctx.beginPath(); 
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(96, 165, 250, 0.3)"; 
+        ctx.fill();
+      });
+      requestAnimationFrame(drawParticles);
+    }
+    drawParticles();
+
+    console.log("🏨 Hostel Inventory System initialized successfully!");
+    console.log("✅ Forgot password feature added!");
+    console.log("✅ Registration fixed! User stays logged in after registration.");
+  </script>
+</body>
+</html>

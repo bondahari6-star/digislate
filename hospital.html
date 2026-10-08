@@ -1,0 +1,3364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>MedCare Hospital Management System</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+:root{
+    --primary:#2563eb;
+    --primary-dark:#1d4ed8;
+    --secondary:#0f172a;
+    --bg:#f1f5f9;
+    --card:#ffffff;
+    --text:#1e293b;
+    --muted:#64748b;
+    --success:#16a34a;
+    --danger:#dc2626;
+    --warning:#f59e0b;
+    --border:#e2e8f0;
+}
+
+body{
+    background:var(--bg);
+    color:var(--text);
+}
+
+/* LOGIN */
+
+.login-page{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+        linear-gradient(135deg,#1d4ed8,#0f172a);
+    padding:20px;
+}
+
+.login-card{
+    width:100%;
+    max-width:420px;
+    background:white;
+    padding:40px;
+    border-radius:20px;
+    box-shadow:0 25px 60px rgba(0,0,0,.25);
+}
+
+.logo{
+    width:65px;
+    height:65px;
+    margin:auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#dbeafe;
+    color:var(--primary);
+    border-radius:18px;
+    font-size:32px;
+    font-weight:bold;
+}
+
+.login-card h1{
+    text-align:center;
+    margin-top:18px;
+    font-size:26px;
+}
+
+.login-card p{
+    text-align:center;
+    color:var(--muted);
+    margin:8px 0 25px;
+}
+
+.form-group{
+    margin-bottom:16px;
+}
+
+.form-group label{
+    display:block;
+    margin-bottom:7px;
+    font-size:14px;
+    font-weight:bold;
+}
+
+input,select,textarea{
+    width:100%;
+    padding:12px 14px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    outline:none;
+    background:white;
+    color:var(--text);
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+    border-color:var(--primary);
+    box-shadow:0 0 0 3px rgba(37,99,235,.1);
+}
+
+textarea{
+    min-height:100px;
+    resize:vertical;
+}
+
+.btn{
+    border:none;
+    padding:11px 16px;
+    border-radius:9px;
+    cursor:pointer;
+    font-weight:bold;
+    transition:.2s;
+}
+
+.btn-primary{
+    background:var(--primary);
+    color:white;
+}
+
+.btn-primary:hover{
+    background:var(--primary-dark);
+}
+
+.btn-danger{
+    background:#fee2e2;
+    color:#b91c1c;
+}
+
+.btn-success{
+    background:#dcfce7;
+    color:#15803d;
+}
+
+.full{
+    width:100%;
+}
+
+.login-error{
+    display:none;
+    background:#fee2e2;
+    color:#b91c1c;
+    padding:10px;
+    border-radius:8px;
+    margin-bottom:15px;
+    text-align:center;
+}
+
+/* APP */
+
+.app{
+    display:none;
+    min-height:100vh;
+}
+
+.sidebar{
+    position:fixed;
+    left:0;
+    top:0;
+    bottom:0;
+    width:250px;
+    background:#0f172a;
+    color:white;
+    z-index:20;
+    overflow-y:auto;
+}
+
+.brand{
+    height:75px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:0 22px;
+    border-bottom:1px solid rgba(255,255,255,.1);
+}
+
+.brand-icon{
+    width:42px;
+    height:42px;
+    border-radius:12px;
+    background:#2563eb;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:22px;
+}
+
+.brand h2{
+    font-size:18px;
+}
+
+.nav{
+    padding:18px 12px;
+}
+
+.nav button{
+    width:100%;
+    border:none;
+    background:transparent;
+    color:#cbd5e1;
+    padding:13px 15px;
+    border-radius:9px;
+    cursor:pointer;
+    text-align:left;
+    margin-bottom:5px;
+    font-size:14px;
+}
+
+.nav button:hover,
+.nav button.active{
+    background:#1e40af;
+    color:white;
+}
+
+.nav button span{
+    display:inline-block;
+    width:28px;
+}
+
+.logout{
+    margin:20px 12px;
+    width:calc(100% - 24px);
+    background:#7f1d1d !important;
+    color:white !important;
+}
+
+/* MAIN */
+
+.main{
+    margin-left:250px;
+    min-height:100vh;
+}
+
+.topbar{
+    height:75px;
+    background:white;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 28px;
+    position:sticky;
+    top:0;
+    z-index:10;
+}
+
+.topbar h2{
+    font-size:21px;
+}
+
+.user-info{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.avatar{
+    width:40px;
+    height:40px;
+    background:#dbeafe;
+    color:#1d4ed8;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+}
+
+.content{
+    padding:28px;
+}
+
+.page{
+    display:none;
+}
+
+.page.active{
+    display:block;
+}
+
+/* DASHBOARD */
+
+.welcome{
+    background:linear-gradient(135deg,#2563eb,#1e40af);
+    color:white;
+    padding:25px;
+    border-radius:16px;
+    margin-bottom:25px;
+}
+
+.welcome h1{
+    font-size:25px;
+    margin-bottom:7px;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+    margin-bottom:25px;
+}
+
+.stat-card{
+    background:white;
+    border:1px solid var(--border);
+    border-radius:15px;
+    padding:20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.stat-card h3{
+    font-size:28px;
+    margin-top:7px;
+}
+
+.stat-card p{
+    color:var(--muted);
+    font-size:13px;
+}
+
+.stat-icon{
+    width:50px;
+    height:50px;
+    border-radius:13px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:23px;
+}
+
+.blue{background:#dbeafe;color:#1d4ed8}
+.green{background:#dcfce7;color:#15803d}
+.orange{background:#fef3c7;color:#b45309}
+.red{background:#fee2e2;color:#b91c1c}
+
+.grid-2{
+    display:grid;
+    grid-template-columns:1.5fr 1fr;
+    gap:20px;
+}
+
+.card{
+    background:white;
+    border:1px solid var(--border);
+    border-radius:15px;
+    padding:20px;
+}
+
+.card-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:18px;
+}
+
+.card-header h3{
+    font-size:17px;
+}
+
+/* TABLE */
+
+.table-container{
+    background:white;
+    border:1px solid var(--border);
+    border-radius:15px;
+    overflow:hidden;
+}
+
+.table-top{
+    padding:18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    border-bottom:1px solid var(--border);
+}
+
+.search{
+    max-width:300px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    padding:14px 16px;
+    text-align:left;
+    border-bottom:1px solid var(--border);
+    font-size:14px;
+}
+
+th{
+    background:#f8fafc;
+    color:#475569;
+}
+
+tr:hover td{
+    background:#f8fafc;
+}
+
+.badge{
+    display:inline-block;
+    padding:5px 9px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.badge-success{
+    background:#dcfce7;
+    color:#15803d;
+}
+
+.badge-warning{
+    background:#fef3c7;
+    color:#b45309;
+}
+
+.badge-danger{
+    background:#fee2e2;
+    color:#b91c1c;
+}
+
+.action-btn{
+    padding:6px 9px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    margin-right:4px;
+}
+
+/* MODAL */
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,.65);
+    z-index:100;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.modal.show{
+    display:flex;
+}
+
+.modal-box{
+    width:100%;
+    max-width:650px;
+    max-height:90vh;
+    overflow-y:auto;
+    background:white;
+    border-radius:16px;
+    padding:25px;
+}
+
+.modal-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.close{
+    border:none;
+    background:#f1f5f9;
+    width:35px;
+    height:35px;
+    border-radius:50%;
+    cursor:pointer;
+    font-size:20px;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+.form-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:20px;
+}
+
+/* EMPTY */
+
+.empty{
+    text-align:center;
+    color:var(--muted);
+    padding:35px;
+}
+
+/* MOBILE */
+
+.mobile-menu{
+    display:none;
+    border:none;
+    background:#f1f5f9;
+    padding:8px 12px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:20px;
+}
+
+@media(max-width:1000px){
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .grid-2{
+        grid-template-columns:1fr;
+    }
+}
+
+@media(max-width:750px){
+    .sidebar{
+        transform:translateX(-100%);
+        transition:.3s;
+    }
+
+    .sidebar.open{
+        transform:translateX(0);
+    }
+
+    .main{
+        margin-left:0;
+    }
+
+    .mobile-menu{
+        display:block;
+    }
+
+    .content{
+        padding:18px;
+    }
+
+    .stats{
+        grid-template-columns:1fr;
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+    .topbar{
+        padding:0 15px;
+    }
+
+    .table-container{
+        overflow-x:auto;
+    }
+
+    table{
+        min-width:750px;
+    }
+}
+
+
+/* =========================================================
+   ADD-ON: PATIENT REGISTRATION + DOCTOR PROFILES
+   Existing MedCare CSS above is intentionally preserved.
+========================================================= */
+.register-link{margin-top:18px;text-align:center;color:#64748b;font-size:13px}
+.register-link button{border:0;background:none;color:#2563eb;font-weight:bold;cursor:pointer}
+.register-link button:hover{text-decoration:underline}
+.reg-note{font-size:12px;color:#64748b;background:#f8fafc;padding:10px;border-radius:9px;margin-top:8px}
+.doctor-finder{background:#fff;border:1px solid var(--border);border-radius:15px;padding:20px;margin-bottom:20px}
+.doctor-finder-grid{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-top:15px}
+.doctor-profile-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:25px}
+.doctor-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;transition:.2s}
+.doctor-card:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(15,23,42,.10)}
+.doctor-avatar{width:68px;height:68px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#2563eb,#1e40af);color:#fff;font-size:23px;font-weight:bold;margin-bottom:14px}
+.doctor-card h3{font-size:17px;margin-bottom:5px}
+.doctor-specialty{font-size:13px;color:#2563eb;font-weight:bold;margin-bottom:12px}
+.doctor-meta{display:grid;gap:7px;font-size:12px;color:#475569;margin-bottom:12px}
+.disease-tags{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 15px}
+.disease-tag{background:#eff6ff;color:#1d4ed8;border-radius:20px;padding:5px 8px;font-size:11px;font-weight:bold}
+.doctor-actions{display:flex;gap:8px}
+.doctor-actions .btn{flex:1}
+.profile-header{display:flex;gap:18px;align-items:center;border-bottom:1px solid var(--border);padding-bottom:18px;margin-bottom:18px}
+.profile-avatar{width:88px;height:88px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#2563eb,#1e40af);color:#fff;font-size:30px;font-weight:bold;flex:none}
+.profile-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:18px}
+.profile-box{background:#f8fafc;border-radius:10px;padding:13px;font-size:13px}
+.profile-box strong{display:block;margin-bottom:5px;color:#334155}
+.history-wrap{overflow-x:auto}
+.history-table{width:100%;border-collapse:collapse}
+.history-table th,.history-table td{padding:10px;border-bottom:1px solid var(--border);font-size:12px;text-align:left;white-space:nowrap}
+.history-table th{background:#f8fafc;color:#475569}
+.sample-label{display:inline-block;background:#fef3c7;color:#92400e;border-radius:20px;padding:4px 8px;font-size:11px;font-weight:bold;margin-bottom:10px}
+@media(max-width:1000px){.doctor-profile-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:750px){.doctor-finder-grid,.doctor-profile-grid,.profile-grid{grid-template-columns:1fr}}
+
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+
+<div id="loginPage" class="login-page">
+
+    <div class="login-card">
+
+        <div class="logo">✚</div>
+
+        <h1>MedCare Hospital</h1>
+
+        <p>Hospital & Patient Management System</p>
+
+        <div id="loginError" class="login-error">
+            Invalid username or password
+        </div>
+
+        <form id="loginForm">
+
+            <div class="form-group">
+                <label>Username</label>
+                <input id="username"
+                       type="text"
+                       placeholder="Enter username"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input id="password"
+                       type="password"
+                       placeholder="Enter password"
+                       required>
+            </div>
+
+            <button class="btn btn-primary full" type="submit">
+                Login
+            </button>
+
+        </form>
+
+        <p style="font-size:12px;margin-top:18px;">
+            Demo: admin / admin123
+        </p>
+
+        <div class="register-link">
+            New patient?
+            <button type="button" onclick="openModal('registrationModal')">Create New Account</button>
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- APPLICATION -->
+
+<div id="app" class="app">
+
+    <!-- SIDEBAR -->
+
+    <aside id="sidebar" class="sidebar">
+
+        <div class="brand">
+            <div class="brand-icon">✚</div>
+            <h2>MedCare</h2>
+        </div>
+
+        <nav class="nav">
+
+            <button class="active" onclick="showPage('dashboard',this)">
+                <span>📊</span> Dashboard
+            </button>
+
+            <button onclick="showPage('patients',this)">
+                <span>🧑‍🤝‍🧑</span> Patients
+            </button>
+
+            <button onclick="showPage('doctors',this)">
+                <span>👨‍⚕️</span> Doctors
+            </button>
+
+            <button onclick="showPage('appointments',this)">
+                <span>📅</span> Appointments
+            </button>
+
+            <button onclick="showPage('records',this)">
+                <span>🩺</span> Medical Records
+            </button>
+
+            <button onclick="showPage('pharmacy',this)">
+                <span>💊</span> Pharmacy
+            </button>
+
+            <button onclick="showPage('laboratory',this)">
+                <span>🧪</span> Laboratory
+            </button>
+
+            <button onclick="showPage('billing',this)">
+                <span>💰</span> Billing
+            </button>
+
+            <button class="logout" onclick="logout()">
+                <span>🚪</span> Logout
+            </button>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div style="display:flex;align-items:center;gap:12px;">
+
+                <button class="mobile-menu" onclick="toggleSidebar()">
+                    ☰
+                </button>
+
+                <h2 id="pageTitle">Dashboard</h2>
+
+            </div>
+
+            <div class="user-info">
+
+                <div>
+                    <strong>Administrator</strong>
+                    <small style="display:block;color:#64748b;">
+                        Hospital Admin
+                    </small>
+                </div>
+
+                <div class="avatar">A</div>
+
+            </div>
+
+        </header>
+
+
+        <section class="content">
+
+
+            <!-- DASHBOARD -->
+
+            <div id="dashboard" class="page active">
+
+                <div class="welcome">
+
+                    <h1>Welcome to MedCare Hospital 🏥</h1>
+
+                    <p>
+                        Manage patients, doctors, appointments,
+                        medical records and hospital services from one place.
+                    </p>
+
+                </div>
+
+
+                <div class="stats">
+
+                    <div class="stat-card">
+                        <div>
+                            <p>Total Patients</p>
+                            <h3 id="patientCount">0</h3>
+                        </div>
+
+                        <div class="stat-icon blue">🧑‍🤝‍🧑</div>
+                    </div>
+
+
+                    <div class="stat-card">
+                        <div>
+                            <p>Total Doctors</p>
+                            <h3 id="doctorCount">0</h3>
+                        </div>
+
+                        <div class="stat-icon green">👨‍⚕️</div>
+                    </div>
+
+
+                    <div class="stat-card">
+                        <div>
+                            <p>Appointments</p>
+                            <h3 id="appointmentCount">0</h3>
+                        </div>
+
+                        <div class="stat-icon orange">📅</div>
+                    </div>
+
+
+                    <div class="stat-card">
+                        <div>
+                            <p>Pending Bills</p>
+                            <h3 id="billingCount">0</h3>
+                        </div>
+
+                        <div class="stat-icon red">💰</div>
+                    </div>
+
+                </div>
+
+
+                <div class="grid-2">
+
+                    <div class="card">
+
+                        <div class="card-header">
+                            <h3>Recent Appointments</h3>
+
+                            <button class="btn btn-primary"
+                                    onclick="openModal('appointmentModal')">
+                                + Appointment
+                            </button>
+                        </div>
+
+                        <div id="dashboardAppointments"></div>
+
+                    </div>
+
+
+                    <div class="card">
+
+                        <div class="card-header">
+                            <h3>Hospital Overview</h3>
+                        </div>
+
+                        <p style="margin-bottom:15px;">
+                            <strong>Departments</strong>
+                        </p>
+
+                        <div style="display:grid;gap:10px;">
+
+                            <div class="stat-card">
+                                <span>Cardiology</span>
+                                <strong>12</strong>
+                            </div>
+
+                            <div class="stat-card">
+                                <span>General Medicine</span>
+                                <strong>18</strong>
+                            </div>
+
+                            <div class="stat-card">
+                                <span>Orthopedics</span>
+                                <strong>8</strong>
+                            </div>
+
+                            <div class="stat-card">
+                                <span>Pediatrics</span>
+                                <strong>10</strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- PATIENTS -->
+
+            <div id="patients" class="page">
+
+                <div class="table-container">
+
+                    <div class="table-top">
+
+                        <div>
+                            <h3>Patient Management</h3>
+                            <p style="color:#64748b;font-size:13px;">
+                                Manage registered patients
+                            </p>
+                        </div>
+
+                        <button class="btn btn-primary"
+                                onclick="openModal('patientModal')">
+                            + Add Patient
+                        </button>
+
+                    </div>
+
+                    <div style="padding:15px;">
+                        <input class="search"
+                               id="patientSearch"
+                               onkeyup="renderPatients()"
+                               placeholder="Search patient...">
+                    </div>
+
+                    <div style="overflow-x:auto;">
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Age</th>
+                                    <th>Gender</th>
+                                    <th>Phone</th>
+                                    <th>Blood Group</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="patientTable"></tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- DOCTORS -->
+
+            <div id="doctors" class="page">
+
+                <!-- ADD-ON: DOCTOR FINDER / PROFILES -->
+                <div class="doctor-finder">
+                    <div class="card-header" style="margin-bottom:0;">
+                        <div>
+                            <h3>Find a Doctor</h3>
+                            <p style="color:#64748b;font-size:13px;margin-top:4px;">Search by disease, condition, doctor name or specialization</p>
+                        </div>
+                    </div>
+                    <div class="doctor-finder-grid">
+                        <input id="doctorProfileSearch" placeholder="e.g. migraine, diabetes, heart disease, Dr. Ravi..." oninput="renderDoctorProfiles()">
+                        <select id="doctorProfileSpecialty" onchange="renderDoctorProfiles()">
+                            <option value="">All Specializations</option>
+                            <option>Cardiology</option><option>General Medicine</option><option>Neurology</option>
+                            <option>Dermatology</option><option>Orthopedics</option><option>Pediatrics</option>
+                            <option>ENT</option><option>Gynecology</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="doctorProfileGrid" class="doctor-profile-grid"></div>
+
+
+                <div class="table-container">
+
+                    <div class="table-top">
+
+                        <div>
+                            <h3>Doctor Management</h3>
+                            <p style="color:#64748b;font-size:13px;">
+                                Manage doctors and departments
+                            </p>
+                        </div>
+
+                        <button class="btn btn-primary"
+                                onclick="openModal('doctorModal')">
+                            + Add Doctor
+                        </button>
+
+                    </div>
+
+                    <div style="overflow-x:auto;">
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Doctor</th>
+                                    <th>Specialization</th>
+                                    <th>Department</th>
+                                    <th>Phone</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="doctorTable"></tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- APPOINTMENTS -->
+
+            <div id="appointments" class="page">
+
+                <div class="table-container">
+
+                    <div class="table-top">
+
+                        <div>
+                            <h3>Appointment Management</h3>
+                            <p style="color:#64748b;font-size:13px;">
+                                Schedule and manage appointments
+                            </p>
+                        </div>
+
+                        <button class="btn btn-primary"
+                                onclick="openModal('appointmentModal')">
+                            + New Appointment
+                        </button>
+
+                    </div>
+
+                    <div style="overflow-x:auto;">
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Patient</th>
+                                    <th>Doctor</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="appointmentTable"></tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- MEDICAL RECORDS -->
+
+            <div id="records" class="page">
+
+                <div class="table-container">
+
+                    <div class="table-top">
+
+                        <div>
+                            <h3>Medical Records</h3>
+                            <p style="color:#64748b;font-size:13px;">
+                                Patient diagnosis and treatment history
+                            </p>
+                        </div>
+
+                        <button class="btn btn-primary"
+                                onclick="openModal('recordModal')">
+                            + Add Record
+                        </button>
+
+                    </div>
+
+                    <div style="overflow-x:auto;">
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Patient</th>
+                                    <th>Doctor</th>
+                                    <th>Diagnosis</th>
+                                    <th>Treatment</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="recordTable"></tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- PHARMACY -->
+
+            <div id="pharmacy" class="page">
+
+                <div class="table-container">
+
+                    <div class="table-top">
+
+                        <div>
+                            <h3>Pharmacy Inventory</h3>
+                            <p style="color:#64748b;font-size:13px;">
+                                Manage medicines and stock
+                            </p>
+                        </div>
+
+                        <button class="btn btn-primary"
+                                onclick="openModal('medicineModal')">
+                            + Add Medicine
+                        </button>
+
+                    </div>
+
+                    <div style="overflow-x:auto;">
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Medicine</th>
+                                    <th>Category</th>
+                                    <th>Quantity</th>
+                                    <th>Expiry</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="medicineTable"></tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- LAB -->
+
+            <div id="laboratory" class="page">
+
+                <div class="table-container">
+
+                    <div class="table-top">
+
+                        <div>
+                            <h3>Laboratory Reports</h3>
+                            <p style="color:#64748b;font-size:13px;">
+                                Manage laboratory tests and reports
+                            </p>
+                        </div>
+
+                        <button class="btn btn-primary"
+                                onclick="openModal('labModal')">
+                            + Add Test
+                        </button>
+
+                    </div>
+
+                    <div style="overflow-x:auto;">
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Patient</th>
+                                    <th>Test</th>
+                                    <th>Result</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="labTable"></tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- BILLING -->
+
+            <div id="billing" class="page">
+
+                <div class="table-container">
+
+                    <div class="table-top">
+
+                        <div>
+                            <h3>Billing Management</h3>
+                            <p style="color:#64748b;font-size:13px;">
+                                Manage patient payments and bills
+                            </p>
+                        </div>
+
+                        <button class="btn btn-primary"
+                                onclick="openModal('billingModal')">
+                            + Create Bill
+                        </button>
+
+                    </div>
+
+                    <div style="overflow-x:auto;">
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>Invoice</th>
+                                    <th>Patient</th>
+                                    <th>Service</th>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="billingTable"></tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+
+<!-- =====================================================
+     ADD-ON: NEW PATIENT REGISTRATION MODAL
+===================================================== -->
+<div id="registrationModal" class="modal">
+    <div class="modal-box" style="max-width:720px;">
+        <div class="modal-header">
+            <div>
+                <h2>Create New Patient Account</h2>
+                <p style="color:#64748b;font-size:13px;margin-top:4px;">Register first, then use your email or mobile number to log in.</p>
+            </div>
+            <button class="close" onclick="closeModal('registrationModal')">×</button>
+        </div>
+        <form id="registrationForm">
+            <div class="form-grid">
+                <div class="form-group"><label>Full Name *</label><input id="regName" required placeholder="Enter full name"></div>
+                <div class="form-group"><label>Email *</label><input id="regEmail" type="email" required placeholder="name@example.com"></div>
+                <div class="form-group"><label>Mobile Number *</label><input id="regPhone" required maxlength="10" placeholder="10 digit mobile number"></div>
+                <div class="form-group"><label>Date of Birth</label><input id="regDOB" type="date"></div>
+                <div class="form-group"><label>Gender</label><select id="regGender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+                <div class="form-group"><label>Blood Group</label><select id="regBlood"><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select></div>
+                <div class="form-group"><label>Password *</label><input id="regPassword" type="password" minlength="6" required placeholder="Minimum 6 characters"></div>
+                <div class="form-group"><label>Confirm Password *</label><input id="regConfirmPassword" type="password" minlength="6" required placeholder="Re-enter password"></div>
+            </div>
+            <div class="form-group"><label>Address</label><textarea id="regAddress" placeholder="Enter address"></textarea></div>
+            <div class="reg-note">Demo application: registered accounts and sample hospital data are stored in your browser using localStorage.</div>
+            <div class="form-actions">
+                <button type="button" class="btn" onclick="closeModal('registrationModal')">Cancel</button>
+                <button class="btn btn-primary" type="submit">Create Account</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- =====================================================
+     ADD-ON: DOCTOR PROFILE MODAL
+===================================================== -->
+<div id="doctorProfileModal" class="modal">
+    <div class="modal-box" style="max-width:950px;">
+        <div class="modal-header">
+            <h2>Doctor Profile</h2>
+            <button class="close" onclick="closeModal('doctorProfileModal')">×</button>
+        </div>
+        <div id="doctorProfileContent"></div>
+    </div>
+</div>
+
+<!-- PATIENT MODAL -->
+
+<div id="patientModal" class="modal">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h2>Add Patient</h2>
+
+            <button class="close"
+                    onclick="closeModal('patientModal')">
+                ×
+            </button>
+
+        </div>
+
+        <form id="patientForm">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input id="pName" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Age</label>
+                    <input id="pAge" type="number" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Gender</label>
+                    <select id="pGender" required>
+                        <option value="">Select</option>
+                        <option>Male</option>
+                        <option>Female</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Blood Group</label>
+                    <select id="pBlood">
+                        <option>A+</option>
+                        <option>A-</option>
+                        <option>B+</option>
+                        <option>B-</option>
+                        <option>AB+</option>
+                        <option>AB-</option>
+                        <option>O+</option>
+                        <option>O-</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input id="pPhone" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input id="pEmail" type="email">
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <label>Address</label>
+                <textarea id="pAddress"></textarea>
+            </div>
+
+            <div class="form-actions">
+
+                <button type="button"
+                        class="btn"
+                        onclick="closeModal('patientModal')">
+                    Cancel
+                </button>
+
+                <button class="btn btn-primary">
+                    Save Patient
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- DOCTOR MODAL -->
+
+<div id="doctorModal" class="modal">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h2>Add Doctor</h2>
+
+            <button class="close"
+                    onclick="closeModal('doctorModal')">
+                ×
+            </button>
+
+        </div>
+
+        <form id="doctorForm">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Doctor Name</label>
+                    <input id="dName" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Specialization</label>
+                    <input id="dSpecialization" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Department</label>
+                    <select id="dDepartment">
+                        <option>Cardiology</option>
+                        <option>General Medicine</option>
+                        <option>Orthopedics</option>
+                        <option>Pediatrics</option>
+                        <option>Neurology</option>
+                        <option>Dermatology</option>
+                        <option>ENT</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input id="dPhone" required>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+
+                <button type="button"
+                        class="btn"
+                        onclick="closeModal('doctorModal')">
+                    Cancel
+                </button>
+
+                <button class="btn btn-primary">
+                    Save Doctor
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- APPOINTMENT MODAL -->
+
+<div id="appointmentModal" class="modal">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h2>New Appointment</h2>
+
+            <button class="close"
+                    onclick="closeModal('appointmentModal')">
+                ×
+            </button>
+
+        </div>
+
+        <form id="appointmentForm">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Patient</label>
+                    <select id="aPatient" required></select>
+                </div>
+
+                <div class="form-group">
+                    <label>Doctor</label>
+                    <select id="aDoctor" required></select>
+                </div>
+
+                <div class="form-group">
+                    <label>Date</label>
+                    <input id="aDate" type="date" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Time</label>
+                    <input id="aTime" type="time" required>
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <label>Reason</label>
+                <textarea id="aReason"
+                          placeholder="Reason for appointment"></textarea>
+            </div>
+
+            <div class="form-actions">
+
+                <button type="button"
+                        class="btn"
+                        onclick="closeModal('appointmentModal')">
+                    Cancel
+                </button>
+
+                <button class="btn btn-primary">
+                    Book Appointment
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- MEDICAL RECORD MODAL -->
+
+<div id="recordModal" class="modal">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h2>Add Medical Record</h2>
+
+            <button class="close"
+                    onclick="closeModal('recordModal')">
+                ×
+            </button>
+
+        </div>
+
+        <form id="recordForm">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Patient</label>
+                    <select id="rPatient" required></select>
+                </div>
+
+                <div class="form-group">
+                    <label>Doctor</label>
+                    <select id="rDoctor" required></select>
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <label>Diagnosis</label>
+                <input id="rDiagnosis" required>
+            </div>
+
+            <div class="form-group">
+                <label>Treatment</label>
+                <textarea id="rTreatment"></textarea>
+            </div>
+
+            <div class="form-actions">
+
+                <button type="button"
+                        class="btn"
+                        onclick="closeModal('recordModal')">
+                    Cancel
+                </button>
+
+                <button class="btn btn-primary">
+                    Save Record
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- MEDICINE MODAL -->
+
+<div id="medicineModal" class="modal">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h2>Add Medicine</h2>
+
+            <button class="close"
+                    onclick="closeModal('medicineModal')">
+                ×
+            </button>
+
+        </div>
+
+        <form id="medicineForm">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Medicine Name</label>
+                    <input id="mName" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Category</label>
+                    <input id="mCategory" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Quantity</label>
+                    <input id="mQuantity"
+                           type="number"
+                           min="0"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label>Expiry Date</label>
+                    <input id="mExpiry" type="date" required>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+
+                <button type="button"
+                        class="btn"
+                        onclick="closeModal('medicineModal')">
+                    Cancel
+                </button>
+
+                <button class="btn btn-primary">
+                    Save Medicine
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- LAB MODAL -->
+
+<div id="labModal" class="modal">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h2>Add Laboratory Test</h2>
+
+            <button class="close"
+                    onclick="closeModal('labModal')">
+                ×
+            </button>
+
+        </div>
+
+        <form id="labForm">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Patient</label>
+                    <select id="lPatient" required></select>
+                </div>
+
+                <div class="form-group">
+                    <label>Test Name</label>
+                    <input id="lTest" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Result</label>
+                    <input id="lResult" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="lStatus">
+                        <option>Completed</option>
+                        <option>Pending</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+
+                <button type="button"
+                        class="btn"
+                        onclick="closeModal('labModal')">
+                    Cancel
+                </button>
+
+                <button class="btn btn-primary">
+                    Save Test
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- BILLING MODAL -->
+
+<div id="billingModal" class="modal">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h2>Create Bill</h2>
+
+            <button class="close"
+                    onclick="closeModal('billingModal')">
+                ×
+            </button>
+
+        </div>
+
+        <form id="billingForm">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Patient</label>
+                    <select id="bPatient" required></select>
+                </div>
+
+                <div class="form-group">
+                    <label>Service</label>
+                    <input id="bService" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Amount (₹)</label>
+                    <input id="bAmount"
+                           type="number"
+                           min="0"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="bStatus">
+                        <option>Pending</option>
+                        <option>Paid</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+
+                <button type="button"
+                        class="btn"
+                        onclick="closeModal('billingModal')">
+                    Cancel
+                </button>
+
+                <button class="btn btn-primary">
+                    Create Bill
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* ============================
+   DATA
+============================ */
+
+let patients =
+JSON.parse(localStorage.getItem("patients")) || [
+    {
+        id:"P001",
+        name:"Ravi Kumar",
+        age:35,
+        gender:"Male",
+        blood:"O+",
+        phone:"9876543210",
+        email:"ravi@example.com",
+        address:"Anantapur"
+    },
+    {
+        id:"P002",
+        name:"Sita Devi",
+        age:29,
+        gender:"Female",
+        blood:"B+",
+        phone:"9123456789",
+        email:"sita@example.com",
+        address:"Kurnool"
+    }
+];
+
+let doctors =
+JSON.parse(localStorage.getItem("doctors")) || [
+    {
+        id:"D001",
+        name:"Dr. Arun Kumar",
+        specialization:"Cardiologist",
+        department:"Cardiology",
+        phone:"9000000001",
+        status:"Available"
+    },
+    {
+        id:"D002",
+        name:"Dr. Priya Sharma",
+        specialization:"General Physician",
+        department:"General Medicine",
+        phone:"9000000002",
+        status:"Available"
+    }
+];
+
+let appointments =
+JSON.parse(localStorage.getItem("appointments")) || [];
+
+let records =
+JSON.parse(localStorage.getItem("records")) || [];
+
+let medicines =
+JSON.parse(localStorage.getItem("medicines")) || [
+    {
+        id:"M001",
+        name:"Paracetamol",
+        category:"Tablet",
+        quantity:120,
+        expiry:"2027-05-20"
+    },
+    {
+        id:"M002",
+        name:"Amoxicillin",
+        category:"Capsule",
+        quantity:35,
+        expiry:"2026-11-10"
+    }
+];
+
+let labs =
+JSON.parse(localStorage.getItem("labs")) || [];
+
+let bills =
+JSON.parse(localStorage.getItem("bills")) || [];
+
+
+/* ============================
+   LOCAL STORAGE
+============================ */
+
+function saveData(){
+
+    localStorage.setItem("patients",JSON.stringify(patients));
+    localStorage.setItem("doctors",JSON.stringify(doctors));
+    localStorage.setItem("appointments",JSON.stringify(appointments));
+    localStorage.setItem("records",JSON.stringify(records));
+    localStorage.setItem("medicines",JSON.stringify(medicines));
+    localStorage.setItem("labs",JSON.stringify(labs));
+    localStorage.setItem("bills",JSON.stringify(bills));
+
+}
+
+
+/* ============================
+   LOGIN
+============================ */
+
+document
+.getElementById("loginForm")
+.addEventListener("submit",function(e){
+
+    e.preventDefault();
+
+    const username =
+        document.getElementById("username").value.trim();
+
+    const password =
+        document.getElementById("password").value;
+
+    if(username === "admin" && password === "admin123"){
+
+        document.getElementById("loginPage").style.display="none";
+        document.getElementById("app").style.display="block";
+
+        updateDashboard();
+
+    }else{
+
+        document.getElementById("loginError").style.display="block";
+
+    }
+
+});
+
+
+function logout(){
+
+    document.getElementById("app").style.display="none";
+    document.getElementById("loginPage").style.display="flex";
+
+    document.getElementById("loginForm").reset();
+
+}
+
+
+/* ============================
+   NAVIGATION
+============================ */
+
+function showPage(page,button){
+
+    document
+    .querySelectorAll(".page")
+    .forEach(p => p.classList.remove("active"));
+
+    document.getElementById(page).classList.add("active");
+
+    document
+    .querySelectorAll(".nav button")
+    .forEach(b => b.classList.remove("active"));
+
+    if(button){
+        button.classList.add("active");
+    }
+
+    const titles={
+        dashboard:"Dashboard",
+        patients:"Patients",
+        doctors:"Doctors",
+        appointments:"Appointments",
+        records:"Medical Records",
+        pharmacy:"Pharmacy",
+        laboratory:"Laboratory",
+        billing:"Billing"
+    };
+
+    document.getElementById("pageTitle").textContent =
+        titles[page];
+
+    if(window.innerWidth < 750){
+        document
+        .getElementById("sidebar")
+        .classList.remove("open");
+    }
+
+    renderAll();
+
+}
+
+
+function toggleSidebar(){
+
+    document
+    .getElementById("sidebar")
+    .classList.toggle("open");
+
+}
+
+
+/* ============================
+   MODALS
+============================ */
+
+function openModal(id){
+
+    updateSelects();
+
+    document
+    .getElementById(id)
+    .classList.add("show");
+
+}
+
+
+function closeModal(id){
+
+    document
+    .getElementById(id)
+    .classList.remove("show");
+
+}
+
+
+/* Close when clicking background */
+
+document.querySelectorAll(".modal").forEach(modal=>{
+
+    modal.addEventListener("click",function(e){
+
+        if(e.target === modal){
+            modal.classList.remove("show");
+        }
+
+    });
+
+});
+
+
+/* ============================
+   GENERATE IDS
+============================ */
+
+function generateId(prefix,array){
+
+    return prefix +
+        String(array.length + 1).padStart(3,"0");
+
+}
+
+
+/* ============================
+   PATIENT
+============================ */
+
+document
+.getElementById("patientForm")
+.addEventListener("submit",function(e){
+
+    e.preventDefault();
+
+    patients.push({
+
+        id:generateId("P",patients),
+
+        name:document.getElementById("pName").value,
+
+        age:document.getElementById("pAge").value,
+
+        gender:document.getElementById("pGender").value,
+
+        blood:document.getElementById("pBlood").value,
+
+        phone:document.getElementById("pPhone").value,
+
+        email:document.getElementById("pEmail").value,
+
+        address:document.getElementById("pAddress").value
+
+    });
+
+    saveData();
+
+    this.reset();
+
+    closeModal("patientModal");
+
+    renderAll();
+
+    alert("Patient added successfully.");
+
+});
+
+
+function renderPatients(){
+
+    const search =
+        (document.getElementById("patientSearch")?.value || "")
+        .toLowerCase();
+
+    const tbody =
+        document.getElementById("patientTable");
+
+    const filtered =
+        patients.filter(p =>
+            p.name.toLowerCase().includes(search) ||
+            p.id.toLowerCase().includes(search) ||
+            p.phone.includes(search)
+        );
+
+    if(filtered.length===0){
+
+        tbody.innerHTML=
+            `<tr><td colspan="7" class="empty">
+            No patients found
+            </td></tr>`;
+
+        return;
+
+    }
+
+    tbody.innerHTML=filtered.map(p=>`
+
+        <tr>
+
+            <td><strong>${p.id}</strong></td>
+
+            <td>${escapeHTML(p.name)}</td>
+
+            <td>${p.age}</td>
+
+            <td>${p.gender}</td>
+
+            <td>${p.phone}</td>
+
+            <td>
+                <span class="badge badge-success">
+                    ${p.blood}
+                </span>
+            </td>
+
+            <td>
+
+                <button
+                    class="action-btn btn-danger"
+                    onclick="deletePatient('${p.id}')">
+                    Delete
+                </button>
+
+            </td>
+
+        </tr>
+
+    `).join("");
+
+}
+
+
+function deletePatient(id){
+
+    if(!confirm("Delete this patient?")) return;
+
+    patients =
+        patients.filter(p => p.id !== id);
+
+    saveData();
+
+    renderAll();
+
+}
+
+
+/* ============================
+   DOCTORS
+============================ */
+
+document
+.getElementById("doctorForm")
+.addEventListener("submit",function(e){
+
+    e.preventDefault();
+
+    doctors.push({
+
+        id:generateId("D",doctors),
+
+        name:document.getElementById("dName").value,
+
+        specialization:
+            document.getElementById("dSpecialization").value,
+
+        department:
+            document.getElementById("dDepartment").value,
+
+        phone:
+            document.getElementById("dPhone").value,
+
+        status:"Available"
+
+    });
+
+    saveData();
+
+    this.reset();
+
+    closeModal("doctorModal");
+
+    renderAll();
+
+    alert("Doctor added successfully.");
+
+});
+
+
+function renderDoctors(){
+
+    const tbody =
+        document.getElementById("doctorTable");
+
+    if(doctors.length===0){
+
+        tbody.innerHTML=
+        `<tr><td colspan="7" class="empty">
+        No doctors found
+        </td></tr>`;
+
+        return;
+
+    }
+
+    tbody.innerHTML=doctors.map(d=>`
+
+        <tr>
+
+            <td><strong>${d.id}</strong></td>
+
+            <td>${escapeHTML(d.name)}</td>
+
+            <td>${escapeHTML(d.specialization)}</td>
+
+            <td>${escapeHTML(d.department)}</td>
+
+            <td>${d.phone}</td>
+
+            <td>
+                <span class="badge badge-success">
+                    ${d.status}
+                </span>
+            </td>
+
+            <td>
+
+                <button
+                    class="action-btn btn-danger"
+                    onclick="deleteDoctor('${d.id}')">
+                    Delete
+                </button>
+
+            </td>
+
+        </tr>
+
+    `).join("");
+
+}
+
+
+function deleteDoctor(id){
+
+    if(!confirm("Delete this doctor?")) return;
+
+    doctors =
+        doctors.filter(d=>d.id!==id);
+
+    saveData();
+
+    renderAll();
+
+}
+
+
+/* ============================
+   SELECT OPTIONS
+============================ */
+
+function updateSelects(){
+
+    const patientOptions =
+        `<option value="">Select Patient</option>` +
+        patients.map(p =>
+            `<option value="${p.id}">
+                ${escapeHTML(p.name)} (${p.id})
+            </option>`
+        ).join("");
+
+    const doctorOptions =
+        `<option value="">Select Doctor</option>` +
+        doctors.map(d =>
+            `<option value="${d.id}">
+                ${escapeHTML(d.name)}
+            </option>`
+        ).join("");
+
+
+    ["aPatient","rPatient","lPatient","bPatient"]
+    .forEach(id => {
+
+        const el=document.getElementById(id);
+
+        if(el) el.innerHTML=patientOptions;
+
+    });
+
+
+    ["aDoctor","rDoctor"]
+    .forEach(id => {
+
+        const el=document.getElementById(id);
+
+        if(el) el.innerHTML=doctorOptions;
+
+    });
+
+}
+
+
+/* ============================
+   APPOINTMENTS
+============================ */
+
+document
+.getElementById("appointmentForm")
+.addEventListener("submit",function(e){
+
+    e.preventDefault();
+
+    appointments.push({
+
+        id:generateId("A",appointments),
+
+        patient:
+            document.getElementById("aPatient").value,
+
+        doctor:
+            document.getElementById("aDoctor").value,
+
+        date:
+            document.getElementById("aDate").value,
+
+        time:
+            document.getElementById("aTime").value,
+
+        reason:
+            document.getElementById("aReason").value,
+
+        status:"Scheduled"
+
+    });
+
+    saveData();
+
+    this.reset();
+
+    closeModal("appointmentModal");
+
+    renderAll();
+
+    alert("Appointment booked successfully.");
+
+});
+
+
+function patientName(id){
+
+    const p=patients.find(x=>x.id===id);
+
+    return p ? p.name : "Unknown";
+
+}
+
+
+function doctorName(id){
+
+    const d=doctors.find(x=>x.id===id);
+
+    return d ? d.name : "Unknown";
+
+}
+
+
+function renderAppointments(){
+
+    const tbody =
+        document.getElementById("appointmentTable");
+
+    if(appointments.length===0){
+
+        tbody.innerHTML=
+        `<tr><td colspan="8" class="empty">
+        No appointments available
+        </td></tr>`;
+
+        return;
+
+    }
+
+    tbody.innerHTML=appointments.map(a=>`
+
+        <tr>
+
+            <td>${a.id}</td>
+
+            <td>${escapeHTML(patientName(a.patient))}</td>
+
+            <td>${escapeHTML(doctorName(a.doctor))}</td>
+
+            <td>${a.date}</td>
+
+            <td>${a.time}</td>
+
+            <td>${escapeHTML(a.reason || "-")}</td>
+
+            <td>
+                <span class="badge badge-warning">
+                    ${a.status}
+                </span>
+            </td>
+
+            <td>
+
+                <button
+                    class="action-btn btn-success"
+                    onclick="completeAppointment('${a.id}')">
+                    Complete
+                </button>
+
+                <button
+                    class="action-btn btn-danger"
+                    onclick="deleteAppointment('${a.id}')">
+                    Delete
+                </button>
+
+            </td>
+
+        </tr>
+
+    `).join("");
+
+}
+
+
+function completeAppointment(id){
+
+    const a =
+        appointments.find(x=>x.id===id);
+
+    if(a){
+        a.status="Completed";
+    }
+
+    saveData();
+
+    renderAll();
+
+}
+
+
+function deleteAppointment(id){
+
+    if(!confirm("Delete appointment?")) return;
+
+    appointments =
+        appointments.filter(a=>a.id!==id);
+
+    saveData();
+
+    renderAll();
+
+}
+
+
+/* ============================
+   MEDICAL RECORDS
+============================ */
+
+document
+.getElementById("recordForm")
+.addEventListener("submit",function(e){
+
+    e.preventDefault();
+
+    records.push({
+
+        id:generateId("R",records),
+
+        patient:
+            document.getElementById("rPatient").value,
+
+        doctor:
+            document.getElementById("rDoctor").value,
+
+        diagnosis:
+            document.getElementById("rDiagnosis").value,
+
+        treatment:
+            document.getElementById("rTreatment").value,
+
+        date:new Date().toISOString().split("T")[0]
+
+    });
+
+    saveData();
+
+    this.reset();
+
+    closeModal("recordModal");
+
+    renderAll();
+
+    alert("Medical record saved.");
+
+});
+
+
+function renderRecords(){
+
+    const tbody =
+        document.getElementById("recordTable");
+
+    if(records.length===0){
+
+        tbody.innerHTML=
+        `<tr><td colspan="7" class="empty">
+        No medical records available
+        </td></tr>`;
+
+        return;
+
+    }
+
+    tbody.innerHTML=records.map(r=>`
+
+        <tr>
+
+            <td>${r.id}</td>
+
+            <td>${escapeHTML(patientName(r.patient))}</td>
+
+            <td>${escapeHTML(doctorName(r.doctor))}</td>
+
+            <td>${escapeHTML(r.diagnosis)}</td>
+
+            <td>${escapeHTML(r.treatment || "-")}</td>
+
+            <td>${r.date}</td>
+
+            <td>
+
+                <button
+                    class="action-btn btn-danger"
+                    onclick="deleteRecord('${r.id}')">
+                    Delete
+                </button>
+
+            </td>
+
+        </tr>
+
+    `).join("");
+
+}
+
+
+function deleteRecord(id){
+
+    if(!confirm("Delete medical record?")) return;
+
+    records =
+        records.filter(r=>r.id!==id);
+
+    saveData();
+
+    renderAll();
+
+}
+
+
+/* ============================
+   PHARMACY
+============================ */
+
+document
+.getElementById("medicineForm")
+.addEventListener("submit",function(e){
+
+    e.preventDefault();
+
+    medicines.push({
+
+        id:generateId("M",medicines),
+
+        name:
+            document.getElementById("mName").value,
+
+        category:
+            document.getElementById("mCategory").value,
+
+        quantity:
+            Number(document.getElementById("mQuantity").value),
+
+        expiry:
+            document.getElementById("mExpiry").value
+
+    });
+
+    saveData();
+
+    this.reset();
+
+    closeModal("medicineModal");
+
+    renderAll();
+
+    alert("Medicine added.");
+
+});
+
+
+function renderMedicines(){
+
+    const tbody =
+        document.getElementById("medicineTable");
+
+    if(medicines.length===0){
+
+        tbody.innerHTML=
+        `<tr><td colspan="7" class="empty">
+        No medicines found
+        </td></tr>`;
+
+        return;
+
+    }
+
+    tbody.innerHTML=medicines.map(m=>{
+
+        let status =
+            m.quantity < 20
+            ? "Low Stock"
+            : "In Stock";
+
+        let cls =
+            m.quantity < 20
+            ? "badge-danger"
+            : "badge-success";
+
+        return `
+
+        <tr>
+
+            <td>${m.id}</td>
+
+            <td>${escapeHTML(m.name)}</td>
+
+            <td>${escapeHTML(m.category)}</td>
+
+            <td>${m.quantity}</td>
+
+            <td>${m.expiry}</td>
+
+            <td>
+                <span class="badge ${cls}">
+                    ${status}
+                </span>
+            </td>
+
+            <td>
+
+                <button
+                    class="action-btn btn-danger"
+                    onclick="deleteMedicine('${m.id}')">
+                    Delete
+                </button>
+
+            </td>
+
+        </tr>
+
+        `;
+
+    }).join("");
+
+}
+
+
+function deleteMedicine(id){
+
+    if(!confirm("Delete medicine?")) return;
+
+    medicines =
+        medicines.filter(m=>m.id!==id);
+
+    saveData();
+
+    renderAll();
+
+}
+
+
+/* ============================
+   LABORATORY
+============================ */
+
+document
+.getElementById("labForm")
+.addEventListener("submit",function(e){
+
+    e.preventDefault();
+
+    labs.push({
+
+        id:generateId("L",labs),
+
+        patient:
+            document.getElementById("lPatient").value,
+
+        test:
+            document.getElementById("lTest").value,
+
+        result:
+            document.getElementById("lResult").value,
+
+        date:new Date().toISOString().split("T")[0],
+
+        status:
+            document.getElementById("lStatus").value
+
+    });
+
+    saveData();
+
+    this.reset();
+
+    closeModal("labModal");
+
+    renderAll();
+
+    alert("Laboratory test added.");
+
+});
+
+
+function renderLabs(){
+
+    const tbody =
+        document.getElementById("labTable");
+
+    if(labs.length===0){
+
+        tbody.innerHTML=
+        `<tr><td colspan="7" class="empty">
+        No laboratory reports available
+        </td></tr>`;
+
+        return;
+
+    }
+
+    tbody.innerHTML=labs.map(l=>`
+
+        <tr>
+
+            <td>${l.id}</td>
+
+            <td>${escapeHTML(patientName(l.patient))}</td>
+
+            <td>${escapeHTML(l.test)}</td>
+
+            <td>${escapeHTML(l.result)}</td>
+
+            <td>${l.date}</td>
+
+            <td>
+                <span class="badge ${
+                    l.status==="Completed"
+                    ? "badge-success"
+                    : "badge-warning"
+                }">
+                    ${l.status}
+                </span>
+            </td>
+
+            <td>
+
+                <button
+                    class="action-btn btn-danger"
+                    onclick="deleteLab('${l.id}')">
+                    Delete
+                </button>
+
+            </td>
+
+        </tr>
+
+    `).join("");
+
+}
+
+
+function deleteLab(id){
+
+    if(!confirm("Delete laboratory record?")) return;
+
+    labs =
+        labs.filter(l=>l.id!==id);
+
+    saveData();
+
+    renderAll();
+
+}
+
+
+/* ============================
+   BILLING
+============================ */
+
+document
+.getElementById("billingForm")
+.addEventListener("submit",function(e){
+
+    e.preventDefault();
+
+    bills.push({
+
+        id:"INV-" +
+            String(bills.length+1).padStart(4,"0"),
+
+        patient:
+            document.getElementById("bPatient").value,
+
+        service:
+            document.getElementById("bService").value,
+
+        amount:
+            Number(document.getElementById("bAmount").value),
+
+        date:
+            new Date().toISOString().split("T")[0],
+
+        status:
+            document.getElementById("bStatus").value
+
+    });
+
+    saveData();
+
+    this.reset();
+
+    closeModal("billingModal");
+
+    renderAll();
+
+    alert("Bill created successfully.");
+
+});
+
+
+function renderBills(){
+
+    const tbody =
+        document.getElementById("billingTable");
+
+    if(bills.length===0){
+
+        tbody.innerHTML=
+        `<tr><td colspan="7" class="empty">
+        No bills available
+        </td></tr>`;
+
+        return;
+
+    }
+
+    tbody.innerHTML=bills.map(b=>`
+
+        <tr>
+
+            <td><strong>${b.id}</strong></td>
+
+            <td>${escapeHTML(patientName(b.patient))}</td>
+
+            <td>${escapeHTML(b.service)}</td>
+
+            <td>₹${Number(b.amount).toLocaleString("en-IN")}</td>
+
+            <td>${b.date}</td>
+
+            <td>
+                <span class="badge ${
+                    b.status==="Paid"
+                    ? "badge-success"
+                    : "badge-danger"
+                }">
+                    ${b.status}
+                </span>
+            </td>
+
+            <td>
+
+                ${
+                    b.status==="Pending"
+                    ?
+                    `<button
+                        class="action-btn btn-success"
+                        onclick="markPaid('${b.id}')">
+                        Mark Paid
+                    </button>`
+                    :
+                    ""
+                }
+
+                <button
+                    class="action-btn btn-danger"
+                    onclick="deleteBill('${b.id}')">
+                    Delete
+                </button>
+
+            </td>
+
+        </tr>
+
+    `).join("");
+
+}
+
+
+function markPaid(id){
+
+    const bill =
+        bills.find(b=>b.id===id);
+
+    if(bill){
+        bill.status="Paid";
+    }
+
+    saveData();
+
+    renderAll();
+
+}
+
+
+function deleteBill(id){
+
+    if(!confirm("Delete bill?")) return;
+
+    bills =
+        bills.filter(b=>b.id!==id);
+
+    saveData();
+
+    renderAll();
+
+}
+
+
+/* ============================
+   DASHBOARD
+============================ */
+
+function updateDashboard(){
+
+    document.getElementById("patientCount")
+        .textContent=patients.length;
+
+    document.getElementById("doctorCount")
+        .textContent=doctors.length;
+
+    document.getElementById("appointmentCount")
+        .textContent=appointments.length;
+
+    document.getElementById("billingCount")
+        .textContent=
+        bills.filter(b=>b.status==="Pending").length;
+
+
+    const container =
+        document.getElementById("dashboardAppointments");
+
+    if(appointments.length===0){
+
+        container.innerHTML=
+        `<div class="empty">
+            No appointments scheduled.
+        </div>`;
+
+        return;
+
+    }
+
+    const recent =
+        appointments.slice(-5).reverse();
+
+    container.innerHTML=recent.map(a=>`
+
+        <div style="
+            padding:13px 0;
+            border-bottom:1px solid #e2e8f0;
+            display:flex;
+            justify-content:space-between;
+            gap:10px;
+        ">
+
+            <div>
+
+                <strong>
+                    ${escapeHTML(patientName(a.patient))}
+                </strong>
+
+                <div style="
+                    font-size:12px;
+                    color:#64748b;
+                    margin-top:4px;
+                ">
+
+                    ${escapeHTML(doctorName(a.doctor))}
+                    • ${a.date} • ${a.time}
+
+                </div>
+
+            </div>
+
+            <span class="badge ${
+                a.status==="Completed"
+                ? "badge-success"
+                : "badge-warning"
+            }">
+
+                ${a.status}
+
+            </span>
+
+        </div>
+
+    `).join("");
+
+}
+
+
+/* ============================
+   RENDER ALL
+============================ */
+
+function renderAll(){
+
+    updateDashboard();
+
+    renderPatients();
+
+    renderDoctors();
+
+    renderAppointments();
+
+    renderRecords();
+
+    renderMedicines();
+
+    renderLabs();
+
+    renderBills();
+
+    updateSelects();
+
+}
+
+
+/* ============================
+   SECURITY HELPER
+============================ */
+
+function escapeHTML(value){
+
+    return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+
+/* ============================
+   INITIALIZE
+============================ */
+
+saveData();
+
+renderAll();
+
+
+
+/* =========================================================
+   ADD-ON JAVASCRIPT: REGISTRATION + DOCTOR PROFILES
+   Existing application functions above are preserved.
+========================================================= */
+
+let registeredUsers = JSON.parse(localStorage.getItem("registeredUsers")) || [];
+let currentUser = JSON.parse(sessionStorage.getItem("medcareCurrentUser") || "null");
+
+const doctorProfiles = [
+    {
+        id:"D001", name:"Dr. Arun Kumar", specialization:"Cardiology", qualification:"MBBS, MD, DM Cardiology", experience:"15 Years", department:"Cardiology", phone:"9000000001", fee:800,
+        availability:"Monday - Saturday", timing:"09:00 AM - 02:00 PM",
+        diseases:["Heart Disease","Hypertension","Chest Pain","High Cholesterol"],
+        about:"Senior cardiologist specializing in cardiovascular evaluation, preventive heart care and hypertension management.",
+        history:[
+            ["DEMO-P001","Hypertension","2025-11-18","Lifestyle management and follow-up","Stable"],
+            ["DEMO-P002","Chest Pain","2026-01-10","ECG evaluation and observation","Improved"],
+            ["DEMO-P003","High Cholesterol","2026-03-15","Dietary management and monitoring","Stable"]
+        ]
+    },
+    {
+        id:"D002", name:"Dr. Priya Sharma", specialization:"General Medicine", qualification:"MBBS, MD General Medicine", experience:"11 Years", department:"General Medicine", phone:"9000000002", fee:500,
+        availability:"Monday - Friday", timing:"10:00 AM - 04:00 PM",
+        diseases:["Diabetes","Fever","Viral Infection","Hypertension"],
+        about:"General physician experienced in diagnosis and management of common medical conditions and routine health problems.",
+        history:[
+            ["DEMO-P004","Type 2 Diabetes","2025-10-12","Diet management and regular monitoring","Stable"],
+            ["DEMO-P005","Viral Fever","2026-02-08","Supportive treatment and rest","Recovered"],
+            ["DEMO-P006","Hypertension","2026-04-22","Regular blood-pressure monitoring","Controlled"]
+        ]
+    },
+    {
+        id:"D003", name:"Dr. Ravi Reddy", specialization:"Neurology", qualification:"MBBS, MD, DM Neurology", experience:"12 Years", department:"Neurology", phone:"9000000003", fee:900,
+        availability:"Monday - Saturday", timing:"11:00 AM - 03:00 PM",
+        diseases:["Migraine","Epilepsy","Neuropathy","Headache"],
+        about:"Neurologist specializing in headache disorders, epilepsy, neuropathy and neurological evaluation.",
+        history:[
+            ["DEMO-P007","Migraine","2025-09-20","Trigger management and follow-up","Improved"],
+            ["DEMO-P008","Epilepsy","2026-01-17","Neurological monitoring","Stable"],
+            ["DEMO-P009","Peripheral Neuropathy","2026-05-03","Neurological assessment","Follow-up"]
+        ]
+    },
+    {
+        id:"D004", name:"Dr. Sneha Rao", specialization:"Dermatology", qualification:"MBBS, MD Dermatology", experience:"9 Years", department:"Dermatology", phone:"9000000004", fee:600,
+        availability:"Monday - Friday", timing:"09:30 AM - 01:30 PM",
+        diseases:["Acne","Eczema","Psoriasis","Skin Infection"],
+        about:"Dermatologist specializing in common skin conditions, skin infections and long-term skin care.",
+        history:[
+            ["DEMO-P010","Acne","2025-12-05","Skin-care management","Improved"],
+            ["DEMO-P011","Eczema","2026-02-16","Skin care and monitoring","Stable"],
+            ["DEMO-P012","Skin Infection","2026-05-12","Clinical evaluation","Recovered"]
+        ]
+    },
+    {
+        id:"D005", name:"Dr. Vikram Singh", specialization:"Orthopedics", qualification:"MBBS, MS Orthopedics", experience:"14 Years", department:"Orthopedics", phone:"9000000005", fee:750,
+        availability:"Monday - Saturday", timing:"02:00 PM - 06:00 PM",
+        diseases:["Arthritis","Fractures","Joint Pain","Back Pain"],
+        about:"Orthopedic specialist focusing on joint, bone and musculoskeletal conditions.",
+        history:[
+            ["DEMO-P013","Knee Arthritis","2025-11-25","Physiotherapy recommendation","Improved"],
+            ["DEMO-P014","Joint Pain","2026-02-12","Orthopedic assessment","Stable"],
+            ["DEMO-P015","Back Pain","2026-04-18","Exercise and posture management","Improved"]
+        ]
+    },
+    {
+        id:"D006", name:"Dr. Anjali Devi", specialization:"Pediatrics", qualification:"MBBS, MD Pediatrics", experience:"10 Years", department:"Pediatrics", phone:"9000000006", fee:550,
+        availability:"Monday - Saturday", timing:"09:00 AM - 01:00 PM",
+        diseases:["Child Fever","Cold","Nutrition","Child Infections"],
+        about:"Pediatrician providing healthcare services for infants, children and adolescents.",
+        history:[
+            ["DEMO-P016","Child Fever","2025-12-12","Clinical examination","Recovered"],
+            ["DEMO-P017","Respiratory Infection","2026-03-07","Supportive care","Recovered"],
+            ["DEMO-P018","Nutrition Concern","2026-05-08","Dietary counseling","Improved"]
+        ]
+    },
+    {
+        id:"D007", name:"Dr. Kiran Kumar", specialization:"ENT", qualification:"MBBS, MS ENT", experience:"13 Years", department:"ENT", phone:"9000000007", fee:650,
+        availability:"Monday - Friday", timing:"10:00 AM - 03:00 PM",
+        diseases:["Ear Infection","Sinusitis","Tonsillitis","Hearing Problems"],
+        about:"ENT specialist experienced in common ear, nose and throat conditions.",
+        history:[
+            ["DEMO-P019","Sinusitis","2025-10-20","ENT examination","Improved"],
+            ["DEMO-P020","Ear Infection","2026-02-27","Clinical evaluation","Recovered"],
+            ["DEMO-P021","Hearing Problem","2026-05-14","Hearing evaluation","Follow-up"]
+        ]
+    },
+    {
+        id:"D008", name:"Dr. Meena Patel", specialization:"Gynecology", qualification:"MBBS, MD Gynecology", experience:"12 Years", department:"Gynecology", phone:"9000000008", fee:700,
+        availability:"Monday - Saturday", timing:"11:00 AM - 04:00 PM",
+        diseases:["PCOS","Menstrual Disorders","Pregnancy Care","Women's Health"],
+        about:"Gynecologist providing women's healthcare and reproductive health services.",
+        history:[
+            ["DEMO-P022","PCOS","2025-11-02","Lifestyle and clinical monitoring","Stable"],
+            ["DEMO-P023","Menstrual Disorder","2026-01-29","Gynecological evaluation","Improved"],
+            ["DEMO-P024","Pregnancy Care","2026-04-09","Routine prenatal monitoring","Follow-up"]
+        ]
+    }
+];
+
+function initials(name){
+    return name.replace(/^Dr\.\s*/i,"").trim().split(/\s+/).map(x=>x[0]).slice(0,2).join("").toUpperCase();
+}
+
+function ensureExtendedDoctors(){
+    doctorProfiles.forEach(p=>{
+        const existing=doctors.find(d=>d.id===p.id);
+        if(existing){
+            existing.name=p.name; existing.specialization=p.specialization; existing.department=p.department; existing.phone=p.phone; existing.status=existing.status||"Available";
+        }else{
+            doctors.push({id:p.id,name:p.name,specialization:p.specialization,department:p.department,phone:p.phone,status:"Available"});
+        }
+    });
+    saveData();
+}
+
+function renderDoctorProfiles(){
+    const box=document.getElementById("doctorProfileGrid");
+    if(!box)return;
+    const q=(document.getElementById("doctorProfileSearch")?.value||"").trim().toLowerCase();
+    const sp=document.getElementById("doctorProfileSpecialty")?.value||"";
+    const list=doctorProfiles.filter(p=>{
+        const hay=[p.name,p.specialization,p.department,p.about,...p.diseases].join(" ").toLowerCase();
+        return (!q||hay.includes(q))&&(!sp||p.specialization===sp);
+    });
+    if(!list.length){box.innerHTML='<div class="empty" style="grid-column:1/-1"><h3>No doctors found</h3><p>Try another disease or specialization.</p></div>';return;}
+    box.innerHTML=list.map(p=>`<div class="doctor-card">
+        <div class="doctor-avatar">${initials(p.name)}</div>
+        <h3>${escapeHTML(p.name)}</h3>
+        <div class="doctor-specialty">${escapeHTML(p.specialization)}</div>
+        <div class="doctor-meta">
+            <div>🎓 ${escapeHTML(p.qualification)}</div>
+            <div>⏱️ ${escapeHTML(p.experience)}</div>
+            <div>🏥 ${escapeHTML(p.department)}</div>
+            <div>💰 Consultation: ₹${p.fee}</div>
+            <div>🕐 ${escapeHTML(p.timing)}</div>
+        </div>
+        <strong style="font-size:12px">Conditions treated</strong>
+        <div class="disease-tags">${p.diseases.map(x=>`<span class="disease-tag">${escapeHTML(x)}</span>`).join("")}</div>
+        <div class="doctor-actions">
+            <button class="btn btn-primary" onclick="viewDoctorProfile('${p.id}')">View Profile</button>
+            <button class="btn btn-success" onclick="bookProfileDoctor('${p.id}')">Book</button>
+        </div>
+    </div>`).join("");
+}
+
+function viewDoctorProfile(id){
+    const p=doctorProfiles.find(x=>x.id===id); if(!p)return;
+    const c=document.getElementById("doctorProfileContent");
+    c.innerHTML=`<div class="profile-header">
+        <div class="profile-avatar">${initials(p.name)}</div>
+        <div><h2>${escapeHTML(p.name)}</h2><p style="color:#2563eb;font-weight:bold;margin-top:5px">${escapeHTML(p.specialization)}</p><p style="color:#64748b;font-size:13px;margin-top:4px">${escapeHTML(p.qualification)}</p></div>
+    </div>
+    <div class="profile-grid">
+        <div class="profile-box"><strong>Experience</strong>${escapeHTML(p.experience)}</div>
+        <div class="profile-box"><strong>Department</strong>${escapeHTML(p.department)}</div>
+        <div class="profile-box"><strong>Consultation Fee</strong>₹${p.fee}</div>
+        <div class="profile-box"><strong>Contact</strong>${escapeHTML(p.phone)}</div>
+        <div class="profile-box"><strong>Available Days</strong>${escapeHTML(p.availability)}</div>
+        <div class="profile-box"><strong>Timing</strong>${escapeHTML(p.timing)}</div>
+    </div>
+    <div class="card" style="margin-bottom:18px"><h3>About Doctor</h3><p style="color:#64748b;line-height:1.7;margin-top:8px">${escapeHTML(p.about)}</p></div>
+    <div class="card" style="margin-bottom:18px"><h3>Diseases / Conditions Treated</h3><div class="disease-tags">${p.diseases.map(x=>`<span class="disease-tag">${escapeHTML(x)}</span>`).join("")}</div></div>
+    <div class="card"><span class="sample-label">DEMO / SAMPLE HISTORY</span><p style="color:#64748b;font-size:12px;margin-bottom:8px">These are fictional records created only for project demonstration. They are not real patient records.</p><div class="history-wrap"><table class="history-table"><thead><tr><th>Patient ID</th><th>Condition</th><th>Date</th><th>Notes / Treatment</th><th>Status</th></tr></thead><tbody>${p.history.map(r=>`<tr><td>${r[0]}</td><td>${escapeHTML(r[1])}</td><td>${r[2]}</td><td>${escapeHTML(r[3])}</td><td><span class="badge ${/stable|recovered|improved|controlled/i.test(r[4])?'badge-success':'badge-warning'}">${escapeHTML(r[4])}</span></td></tr>`).join("")}</tbody></table></div></div>
+    <div class="form-actions"><button class="btn btn-primary" onclick="bookProfileDoctor('${p.id}')">📅 Book Appointment</button></div>`;
+    openModal("doctorProfileModal");
+}
+
+function bookProfileDoctor(id){
+    const p=doctorProfiles.find(x=>x.id===id); if(!p)return;
+    closeModal("doctorProfileModal");
+    showPage("appointments",document.querySelector('.nav button[onclick*="appointments"]'));
+    openModal("appointmentModal");
+    setTimeout(()=>{
+        updateSelects();
+        const ds=document.getElementById("aDoctor"); if(ds)ds.value=p.id;
+        const ps=document.getElementById("aPatient");
+        if(currentUser&&ps&&patients.some(x=>x.id===currentUser.id))ps.value=currentUser.id;
+    },50);
+}
+
+/* Patient registration */
+document.getElementById("registrationForm").addEventListener("submit",function(e){
+    e.preventDefault();
+    const name=document.getElementById("regName").value.trim();
+    const email=document.getElementById("regEmail").value.trim().toLowerCase();
+    const phone=document.getElementById("regPhone").value.trim();
+    const password=document.getElementById("regPassword").value;
+    const confirm=document.getElementById("regConfirmPassword").value;
+    if(!/^[0-9]{10}$/.test(phone)){alert("Enter a valid 10-digit mobile number.");return;}
+    if(password!==confirm){alert("Passwords do not match.");return;}
+    if(registeredUsers.some(u=>u.email===email||u.phone===phone)){alert("An account with this email or mobile number already exists.");return;}
+    const id=generateId("P",patients);
+    const patient={id,name,age:"",gender:document.getElementById("regGender").value,blood:document.getElementById("regBlood").value,phone,email,address:document.getElementById("regAddress").value.trim(),dob:document.getElementById("regDOB").value,registered:true};
+    patients.push(patient);
+    registeredUsers.push({id,name,email,phone,password,role:"patient"});
+    localStorage.setItem("registeredUsers",JSON.stringify(registeredUsers));
+    saveData(); this.reset(); closeModal("registrationModal"); renderAll();
+    alert("Registration successful!\n\nPatient ID: "+id+"\n\nYou can now login using your email or mobile number and password.");
+});
+
+/* Patient login add-on. The original admin login remains unchanged. */
+document.getElementById("loginForm").addEventListener("submit",function(){
+    setTimeout(()=>{
+        const username=document.getElementById("username").value.trim().toLowerCase();
+        const password=document.getElementById("password").value;
+        const user=registeredUsers.find(u=>(u.email===username||u.phone===username)&&u.password===password);
+        if(user){
+            currentUser=user; sessionStorage.setItem("medcareCurrentUser",JSON.stringify(user));
+            document.getElementById("loginError").style.display="none";
+            document.getElementById("loginPage").style.display="none";
+            document.getElementById("app").style.display="block";
+            updateUserHeader(); updateDashboard(); renderAll();
+        }
+    },0);
+});
+
+function updateUserHeader(){
+    if(!currentUser)return;
+    const info=document.querySelector(".user-info");
+    if(!info)return;
+    info.innerHTML=`<div><strong>${escapeHTML(currentUser.name)}</strong><small style="display:block;color:#64748b">Patient • ${escapeHTML(currentUser.id)}</small></div><div class="avatar">${initials(currentUser.name)}</div>`;
+}
+
+/* Keep old logout behavior and additionally clear the patient session. */
+const originalLogout=logout;
+logout=function(){
+    sessionStorage.removeItem("medcareCurrentUser");
+    currentUser=null;
+    originalLogout();
+};
+
+/* Extend doctor selector data without changing the original function. */
+const originalUpdateSelects=updateSelects;
+updateSelects=function(){
+    ensureExtendedDoctors();
+    originalUpdateSelects();
+};
+
+/* Add profile cards whenever the Doctors page is opened. */
+const originalShowPage=showPage;
+showPage=function(page,button){
+    originalShowPage(page,button);
+    if(page==="doctors")renderDoctorProfiles();
+};
+
+/* Add new doctors to the existing table without replacing the old renderer. */
+const originalRenderDoctors=renderDoctors;
+renderDoctors=function(){
+    ensureExtendedDoctors();
+    originalRenderDoctors();
+};
+
+/* Initialize add-on data and UI. */
+ensureExtendedDoctors();
+renderDoctorProfiles();
+if(currentUser)updateUserHeader();
+
+</script>
+
+</body>
+</html>

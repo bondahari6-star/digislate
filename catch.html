@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Catch My Bus - AI ETA Prediction</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+ font-family:Arial,sans-serif;
+ color:white;
+ min-height:100vh;
+ overflow-x:hidden;
+ background: linear-gradient(-45deg, #0a1931, #1f4068, #162447, #1f4068);
+ background-size: 400% 400%;
+ animation: gradientBG 15s ease infinite;
+}
+@keyframes gradientBG{
+ 0%{background-position:0% 50%}
+ 50%{background-position:100% 50%}
+ 100%{background-position:0% 50%}
+}
+nav{
+ background:#0f3460;
+ padding:12px 15px;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ position:fixed;
+ width:100%;
+ top:0;
+ z-index:10;
+ border-bottom:2px solid #ffcc00;
+}
+nav span{margin-left:15px; cursor:pointer; color:#ffcc00; font-weight:bold;}
+.nav-title{
+ font-weight:bold;
+ font-size:22px;
+ background: linear-gradient(90deg, #ffcc00, #3f51b5, #ff5733, #ffcc00);
+ -webkit-background-clip: text;
+ -webkit-text-fill-color: transparent;
+ animation: titleAnim 5s linear infinite;
+}
+@keyframes titleAnim{
+ 0%{background-position:0% 50%;}
+ 50%{background-position:100% 50%;}
+ 100%{background-position:0% 50%;}
+}
+main{margin-top:70px;padding:15px}
+.section{display:none}
+.center{text-align:center}
+.card{
+ background:white;
+ color:#0a1931;
+ border-radius:10px;
+ padding:15px;
+ margin:10px 0;
+}
+.login-box{display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+.login-btn{
+ background:white;color:#0a1931;
+ width:160px;height:160px;
+ border-radius:15px;
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ justify-content:center;
+ font-weight:bold;
+ cursor:pointer;
+ transition:0.3s;
+}
+.login-btn img{ width:70px;height:70px;margin-bottom:10px; }
+.bus-btn{
+ background:white;color:#0a1931;
+ padding:15px;
+ border-radius:10px;
+ margin:10px;
+ cursor:pointer;
+ font-weight:bold;
+ transition:0.3s;
+}
+.bus-btn:hover{background:#ffcc00;color:#0a1931;}
+#road{
+ position:relative;
+ width:100%;
+ height:150px;
+ margin:15px 0;
+ background: #333;
+ border-radius: 20px;
+ overflow:hidden;
+}
+.road-lane{
+ position:absolute;
+ top:50%;
+ left:0;
+ width:100%;
+ height:4px;
+ background: repeating-linear-gradient(
+   to right,
+   #fff,
+   #fff 20px,
+   #333 20px,
+   #333 40px
+ );
+ transform: translateY(-50%);
+}
+#busImg{
+ position:absolute;
+ width:60px;
+ height:60px;
+ transition: transform 0.2s linear;
+ transform-origin: center center;
+ left:0;
+}
+.stop{padding:8px;border-left:4px solid gray;margin:6px 0}
+.stop.active{color:#3f51b5;font-weight:bold}
+.stop.done{color:lime;border-color:lime}
+input,select,button{
+ width:100%;
+ padding:10px;
+ margin:6px 0;
+ border-radius:6px;
+ border:none;
+}
+button{background:#ffcc00;font-weight:bold;cursor:pointer;}
+.popup{
+ display:none;
+ position:fixed;
+ top:0;left:0;
+ width:100%;height:100%;
+ background:rgba(0,0,0,0.6);
+ justify-content:center;
+ align-items:center;
+ z-index:100;
+}
+.popup-content{
+ background:white;
+ color:#0a1931;
+ padding:20px;
+ border-radius:10px;
+ width:300px;
+}
+.back-btn{background:#ccc;margin-top:5px;}
+.slider-container{
+ display:flex; gap:10px; align-items:center; margin:10px 0;
+}
+#notificationHistory{
+ max-height:150px; overflow-y:auto; background:#222; padding:10px; border-radius:8px;
+ color:#fff; font-size:14px; margin-top:5px;
+}
+#notify{
+ background:#ffcc00;
+ color:#0a1931;
+ font-weight:bold;
+ padding:10px;
+ border-radius:8px;
+ margin-bottom:10px;
+ display:none;
+}
+#smsStatus{
+ background:#1a1a1a;
+ color:#00ff00;
+ font-weight:bold;
+ padding:10px;
+ border-radius:8px;
+ margin-top:10px;
+ display:none;
+}
+.language-selector{margin:10px 0;}
+</style>
+</head>
+<body>
+
+<nav>
+ <div class="nav-title">🚍 Catch My Bus</div>
+ <div>
+  <span onclick="goBack()">⬅ Back</span>
+  <span onclick="show('home')">Home</span>
+  <span onclick="show('about')">About</span>
+  <span onclick="show('login')">Login</span>
+ </div>
+</nav>
+
+<main>
+<div id="home" class="section center">
+ <h2 class="nav-title">Catch My Bus</h2>
+ <p>Smart • Safe • Live Monitoring</p><br>
+ <button onclick="show('login')">Get Started</button>
+</div>
+
+<div id="about" class="section center">
+ <div class="card">
+  <h3>About Project</h3>
+  <p>Smart Bus Tracking System with live route monitoring, AI ETA prediction, arrival alerts, voice & SMS notifications.</p>
+  <button class="back-btn" onclick="goBack()">⬅ Back</button>
+ </div>
+</div>
+
+<div id="login" class="section center">
+ <h3>Select Login</h3><br>
+ <div class="login-box">
+  <div class="login-btn" onclick="openLogin('parent')">
+   <img src="https://cdn-icons-png.flaticon.com/512/2910/2910761.png" alt="Parent">Parent
+  </div>
+  <div class="login-btn" onclick="openLogin('student')">
+   <img src="https://cdn-icons-png.flaticon.com/512/1946/1946429.png" alt="Student">Student
+  </div>
+  <div class="login-btn" onclick="openLogin('admin')">
+   <img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" alt="Admin">Admin
+  </div>
+ </div>
+</div>
+
+<div id="loginBox" class="popup">
+ <div class="popup-content">
+  <h3 id="loginTitle"></h3>
+  <input id="username" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
+  <button onclick="verifyLogin()">Login</button>
+  <p id="loginMsg" style="color:red"></p>
+ </div>
+</div>
+
+<div id="busListPage" class="section center">
+ <h3>Select Bus</h3>
+ <div id="busList"></div>
+ <button class="back-btn" onclick="goBack()">⬅ Back</button>
+</div>
+
+<div id="busPage" class="section">
+ <div class="card"><b id="routeTitle"></b></div>
+ <div id="road">
+  <div class="road-lane"></div>
+  <img id="busImg" src="https://cdn-icons-png.flaticon.com/512/3448/3448339.png">
+ </div>
+ <div class="card">
+  <h4>Bus Speed Control</h4>
+  <div class="slider-container">
+   <input type="range" id="speedSlider" min="1" max="10" value="4" onchange="changeSpeed(this.value)">
+   <span id="speedValue">4</span>
+  </div>
+ </div>
+ <div class="card">
+  <h4>Voice Language</h4>
+  <select class="language-selector" id="voiceLang" onchange="changeVoiceLang()">
+   <option value="en-IN">English</option>
+   <option value="hi-IN">Hindi</option>
+   <option value='te-IN'>Telugu</option>
+  </select>
+ </div>
+ <div id="notify" class="card center"></div>
+ <div id="smsStatus" class="card center"></div>
+ <div class="card">
+  <h4>📍 Stops & AI ETA</h4>
+  <div id="stops"></div>
+ </div>
+ <div class="card">
+  <button onclick="startBus()">Start</button>
+  <button onclick="pauseBus()">Pause</button>
+  <button class="back-btn" onclick="goBack()">⬅ Back</button>
+ </div>
+ <div class="card">
+  <h4>Notification History</h4>
+  <div id="notificationHistory"></div>
+ </div>
+</div>
+
+<div id="admin" class="section center">
+ <div class="card">
+  <h3>Add Bus Route</h3>
+  <input id="busNo" placeholder="Bus No">
+  <input id="from" placeholder="From">
+  <input id="to" placeholder="To">
+  <button onclick="addBus()">Add Bus</button>
+ </div>
+ <div class="card">
+  <h3>Add Stops</h3>
+  <select id="busSelect"></select>
+  <input id="stopName" placeholder="Stop Name">
+  <button onclick="addStop()">Add Stop</button>
+  <div id="adminStops"></div>
+ </div>
+ <button class="back-btn" onclick="goBack()">⬅ Back</button>
+</div>
+
+</main>
+
+<audio id="beep">
+ <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg">
+</audio>
+
+<script>
+// Predefined buses
+let buses = [
+  { no:"101", from:"gooty", to:"PVKKIT COLLEGE", stops:[
+    {name:"PAMIDI", distance:1, delay:0},
+    {name:"GARLADINNE", distance:2, delay:1},
+    {name:"PAPAMPETA", distance:3, delay:2},
+    {name:"RAM NAGAR", distance:4, delay:3},
+    {name:"SAI NAGAR", distance:5, delay:4},
+  ]},
+  { no:"202", from:"Station X", to:"Station Z", stops:[
+    {name:"Stop A", distance:1, delay:0},
+    {name:"Stop B", distance:2, delay:1},
+    {name:"Stop C", distance:3, delay:0},
+    {name:"Stop D", distance:4, delay:2},
+    {name:"Stop E", distance:5, delay:1},
+  ]}
+];
+
+let selectedBus=null, timer=null, historyStack=[], role="", speed=1, voiceLanguage="en-IN", busPosition=0;
+
+// Users
+const users={
+ parent:{username:"parent",password:"12"},
+ student:{username:"student",password:"12"},
+ admin:{username:"admin",password:"12"}
+};
+
+// Navigation
+function show(id){document.querySelectorAll('.section').forEach(s=>s.style.display='none');document.getElementById(id).style.display='block';historyStack.push(id);}
+function goBack(){if(historyStack.length>1){historyStack.pop();let prev=historyStack.pop();show(prev);}else show('home');}
+show('home');
+
+// Login
+function openLogin(r){role=r; loginTitle.innerText=r.toUpperCase()+" LOGIN"; loginMsg.innerText=""; loginBox.style.display="flex";}
+function verifyLogin(){let u=users[role]; if(username.value===u.username && password.value===u.password){ loginBox.style.display="none"; role==="admin"?show("admin"):(loadBusList(),show("busListPage"));}else loginMsg.innerText="Invalid username or password";}
+
+// Admin functions
+function addBus(){buses.push({no:busNo.value,from:from.value,to:to.value,stops:[]}); busNo.value=from.value=to.value=""; updateBusSelect();}
+function updateBusSelect(){busSelect.innerHTML=buses.map((b,i)=>`<option value="${i}">Bus ${b.no}</option>`).join("");}
+function addStop(){let distance=buses[busSelect.value].stops.length+1; let delay=Math.floor(Math.random()*5); buses[busSelect.value].stops.push({name:stopName.value,distance:distance,delay:delay}); stopName.value=""; renderAdminStops();}
+function renderAdminStops(){adminStops.innerHTML=buses[busSelect.value].stops.map(s=>`${s.name} - ETA: ${predictETA(s.distance-1).toLocaleTimeString()} (+${s.delay}m delay)`).join("<br>");}
+
+// Bus List
+function loadBusList(){busList.innerHTML=""; buses.forEach((b,i)=>{let d=document.createElement("div");d.className="bus-btn";d.innerHTML=`Bus ${b.no}<br>${b.from} → ${b.to}`; d.onclick=()=>openBus(i); busList.appendChild(d);});}
+
+// Open bus page
+function openBus(i){selectedBus=buses[i]; busPosition=0; routeTitle.innerText=`Bus ${selectedBus.no} : ${selectedBus.from} → ${selectedBus.to}`; show("busPage"); startBusEngine();}
+
+// Bus engine
+function startBusEngine(){clearInterval(timer); timer=setInterval(()=>{busPosition+=speed/10;if(busPosition>selectedBus.stops.length) busPosition=selectedBus.stops.length; renderStops();},1000);}
+function predictETA(stopDistance){let now=new Date(); let remaining=stopDistance-busPosition; remaining=remaining<0?0:remaining; let eta=new Date(now.getTime()+remaining*2*60000); return eta;}
+function renderStops(){
+ stops.innerHTML="";
+ selectedBus.stops.forEach((s,i)=>{
+   let eta=predictETA(s.distance-1);
+   let state="";
+   if(busPosition>=s.distance) state="done";
+   else if(busPosition>=s.distance-0.5) state="active";
+   if(state==="active") notifyArrival(s.name, eta);
+
+   let d=document.createElement("div");
+   d.className="stop "+state;
+   d.innerHTML=`<b>${s.name}</b><br>Predicted ETA: ${eta.toLocaleTimeString()} (+${s.delay}m delay)`;
+   stops.appendChild(d);
+
+   let roadWidth=document.getElementById('road').offsetWidth-60;
+   busImg.style.left=Math.min(busPosition/selectedBus.stops.length*roadWidth,roadWidth)+"px";
+ });
+}
+
+// Notifications
+let notifiedStops={};
+function notifyArrival(stop, eta){
+ if(notifiedStops[stop]) return;
+ notifiedStops[stop]=true;
+ let msg=`Bus arrived at ${stop} (ETA: ${eta.toLocaleTimeString()})`;
+ beep.play();
+ speak(msg);
+ notify.innerHTML="🔔 "+msg;
+ notify.style.display="block";
+ setTimeout(()=>notify.style.display="none",12000);
+ smsStatus.innerHTML="📨 SMS Alert sent to "+role+": "+msg;
+ smsStatus.style.display="block";
+ setTimeout(()=>smsStatus.style.display="none",12000);
+ addNotificationHistory(msg);
+}
+// Load voices properly
+function loadVoices() {
+  voices = speechSynthesis.getVoices();
+}
+speechSynthesis.onvoiceschanged = loadVoices;
+
+// Speak function (FIXED)
+function speak(text) {
+  speechSynthesis.cancel();
+
+  let utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = voiceLanguage;
+
+  // Try exact match
+  let voice = voices.find(v => v.lang === voiceLanguage);
+
+  // Telugu fallback (many devices use te-IN / te)
+  if (!voice && voiceLanguage.startsWith("te")) {
+    voice = voices.find(v => v.lang.startsWith("te"));
+  }
+
+  // General fallback
+  if (!voice) {
+    voice = voices.find(v => v.lang.startsWith(voiceLanguage.split("-")[0]));
+  }
+
+  // Final fallback (English)
+  if (!voice) {
+    voice = voices.find(v => v.lang.startsWith("en"));
+  }
+
+  if (voice) utterance.voice = voice;
+
+  speechSynthesis.speak(utterance);
+}
+
+// Language selector
+function changeVoiceLang() {
+  voiceLanguage = document.getElementById("voiceLang").value;
+}
+function changeVoiceLang(){voiceLanguage=document.getElementById("voiceLang").value;}
+function addNotificationHistory(msg){let d=document.createElement("div"); d.innerText=new Date().toLocaleTimeString()+" - "+msg; notificationHistory.prepend(d);}
+
+// Bus control
+function startBus(){if(!timer) startBusEngine();}
+function pauseBus(){clearInterval(timer); timer=null;}
+function changeSpeed(val){speed=parseInt(val); speedValue.innerText=val;}
+</script>
+
+</body>
+</html>
